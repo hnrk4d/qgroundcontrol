@@ -60,11 +60,11 @@ WindowsBuild {
 # Branding
 #
 
-QGC_APP_NAME        = "QGroundControl"
-QGC_ORG_NAME        = "QGroundControl.org"
-QGC_ORG_DOMAIN      = "org.qgroundcontrol"
+QGC_APP_NAME        = "Fluktor"
+QGC_ORG_NAME        = "fluktor.com"
+QGC_ORG_DOMAIN      = "com.fluktor"
 QGC_APP_DESCRIPTION = "Open source ground control app provided by QGroundControl dev team"
-QGC_APP_COPYRIGHT   = "Copyright (C) 2019 QGroundControl Development Team. All rights reserved."
+QGC_APP_COPYRIGHT   = "Copyright (C) 2019 QGroundControl Development Team, (C) 2023 Fluktor GmbH. All rights reserved."
 
 WindowsBuild {
     QGC_INSTALLER_SCRIPT        = "$$SOURCE_DIR\\deploy\\windows\\nullsoft_installer.nsi"
@@ -96,14 +96,14 @@ exists(user_config.pri):infile(user_config.pri, CONFIG) {
 contains (CONFIG, QGC_DISABLE_CUSTOM_BUILD) {
     message("Disable custom build override")
 } else {
-    exists($$PWD/custom/custom.pri) {
+    exists($$PWD/../flktrqgc/flktrqgc.pri) {
         message("Found custom build")
         CONFIG  += CustomBuild
         DEFINES += QGC_CUSTOM_BUILD
         # custom.pri must define:
         # CUSTOMCLASS  = YourIQGCCorePluginDerivation
         # CUSTOMHEADER = \"\\\"YourIQGCCorePluginDerivation.h\\\"\"
-        include($$PWD/custom/custom.pri)
+        include($$PWD/../flktrqgc/flktrqgc.pri)
     }
 }
 
@@ -332,27 +332,27 @@ include(QGCExternalLibs.pri)
 #
 
 CustomBuild {
-    exists($$PWD/custom/qgroundcontrol.qrc) {
+    exists($$PWD/../flktrqgc/qgroundcontrol.qrc) {
         message("Using custom qgroundcontrol.qrc")
-        RESOURCES += $$PWD/custom/qgroundcontrol.qrc
+        RESOURCES += $$PWD/../flktrqgc/qgroundcontrol.qrc
     } else {
         RESOURCES += $$PWD/qgroundcontrol.qrc
     }
-    exists($$PWD/custom/qgcresources.qrc) {
+    exists($$PWD/../flktrqgc/qgcresources.qrc) {
         message("Using custom qgcresources.qrc")
-        RESOURCES += $$PWD/custom/qgcresources.qrc
+        RESOURCES += $$PWD/../flktrqgc/qgcresources.qrc
     } else {
         RESOURCES += $$PWD/qgcresources.qrc
     }
-    exists($$PWD/custom/qgcimages.qrc) {
+    exists($$PWD/../flktrqgc/qgcimages.qrc) {
         message("Using custom qgcimages.qrc")
-        RESOURCES += $$PWD/custom/qgcimages.qrc
+        RESOURCES += $$PWD/../flktrqgc/qgcimages.qrc
     } else {
         RESOURCES += $$PWD/qgcimages.qrc
     }
-    exists($$PWD/custom/InstrumentValueIcons.qrc) {
+    exists($$PWD/../flktrqgc/InstrumentValueIcons.qrc) {
         message("Using custom InstrumentValueIcons.qrc")
-        RESOURCES += $$PWD/custom/InstrumentValueIcons.qrc
+        RESOURCES += $$PWD/../flktrqgc/InstrumentValueIcons.qrc
     } else {
         RESOURCES += $$PWD/resources/InstrumentValueIcons/InstrumentValueIcons.qrc
     }

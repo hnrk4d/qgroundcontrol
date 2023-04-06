@@ -125,7 +125,7 @@ Joystick::Joystick(const QString& name, int axisCount, int buttonCount, int hatC
     _loadSettings();
     connect(_multiVehicleManager, &MultiVehicleManager::activeVehicleChanged, this, &Joystick::_activeVehicleChanged);
 
-    _customMavCommands = JoystickMavCommand::load("JoystickMavCommands.json");
+    _customMavCommands = JoystickMavCommand::load(":/json/JoystickMavCommands.json");
 }
 
 void Joystick::stop()

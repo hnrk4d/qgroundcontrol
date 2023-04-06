@@ -4,8 +4,8 @@ QT += androidextras
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
-exists($$PWD/custom/android) {
-    message("Merging $$PWD/custom/android/ -> $$PWD/android/")
+exists($$PWD/../flktrqgc/android) {
+    message("Merging $$PWD/../flktrqgc/android/ -> $$PWD/android/")
 
     ANDROID_PACKAGE_SOURCE_DIR = $$OUT_PWD/ANDROID_PACKAGE_SOURCE_DIR
     android_source_dir_target.target = android_source_dir
@@ -14,14 +14,14 @@ exists($$PWD/custom/android) {
 
     android_source_dir_target.commands = $$QMAKE_MKDIR $$ANDROID_PACKAGE_SOURCE_DIR && \
             $$QMAKE_COPY_DIR $$PWD/android/* $$OUT_PWD/ANDROID_PACKAGE_SOURCE_DIR && \
-            $$QMAKE_COPY_DIR $$PWD/custom/android/* $$OUT_PWD/ANDROID_PACKAGE_SOURCE_DIR && \
+            $$QMAKE_COPY_DIR $$PWD/../flktrqgc/android/* $$OUT_PWD/ANDROID_PACKAGE_SOURCE_DIR && \
             $$QMAKE_STREAM_EDITOR -i \"s/package=\\\"org.mavlink.qgroundcontrol\\\"/package=\\\"$$QGC_ANDROID_PACKAGE\\\"/\" $$ANDROID_PACKAGE_SOURCE_DIR/AndroidManifest.xml
     android_source_dir_target.depends = FORCE
 }
 
-exists($$PWD/custom/android/AndroidManifest.xml) {
+exists($$PWD/../flktrqgc/android/AndroidManifest.xml) {
     OTHER_FILES += \
-    $$PWD/custom/android/AndroidManifest.xml
+    $$PWD/../flktrqgc/android/AndroidManifest.xml
 } else {
     OTHER_FILES += \
     $$PWD/android/AndroidManifest.xml
