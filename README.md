@@ -1,5 +1,4 @@
-# QGroundControl Ground Control Station
-# QGroundControl modification for Fluktor drones. Attention: This repository won't compile as it is. Not for public use!
+# QGroundControl modifications for Fluktor drones. Attention: This repository won't compile as it is. Not for public use!
 
 [![Releases](https://img.shields.io/github/release/mavlink/QGroundControl.svg)](https://github.com/mavlink/QGroundControl/releases)
 
