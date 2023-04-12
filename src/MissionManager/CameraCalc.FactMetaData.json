@@ -56,10 +56,11 @@
 {
     "name":             "AdjustedFootprintFrontal",
     "type":             "double",
-    "decimalPlaces":    2,
+    "decimalPlaces":    0,
     "min":              0,
-    "units":            "m",
-    "default":          25
+    "max":              100,
+    "units":            "%",
+    "default":          80
 },
 {
     "name":             "AdjustedFootprintSide",

@@ -970,7 +970,7 @@ Item {
                                         qsTr("You have unsaved changes.")
                 visible:            _planMasterController.dirty
             }
-
+/* //FLKTR: We don't want scan mission elememts -> disabled
             SectionHeader {
                 id:                 createSection
                 Layout.fillWidth:   true
@@ -1033,13 +1033,13 @@ Item {
 
                             function _mapCenter() {
                                 var centerPoint = Qt.point(editorMap.centerViewport.left + (editorMap.centerViewport.width / 2), editorMap.centerViewport.top + (editorMap.centerViewport.height / 2))
-                                return editorMap.toCoordinate(centerPoint, false /* clipToViewPort */)
+                                return editorMap.toCoordinate(centerPoint, false)
                             }
                         }
                     }
                 }
             }
-
+*/
             SectionHeader {
                 id:                 storageSection
                 Layout.fillWidth:   true

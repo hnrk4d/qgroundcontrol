@@ -672,6 +672,7 @@ double SurveyComplexItem::_turnaroundDistance(void) const
 
 void SurveyComplexItem::_rebuildTransectsPhase1(void)
 {
+    _effectiveDistance=0; //FLKTR
     bool split = splitConcavePolygons()->rawValue().toBool();
 	if (split) {
 		_rebuildTransectsPhase1WorkerSplitPolygons(false /* refly */);
@@ -794,6 +795,13 @@ void SurveyComplexItem::_rebuildTransectsPhase1WorkerSinglePolygon(bool refly)
         lineList.append(firstLine);
         intersectLines = lineList;
         _intersectLinesWithPolygon(lineList, polygon, intersectLines);
+    }
+
+    //recalculate effective Distance
+    if(intersectLines.count()) {
+        for(const auto &l : intersectLines) {
+            _effectiveDistance += l.length();
+        }
     }
 
     // Make sure all lines are going the same direction. Polygon intersection leads to lines which

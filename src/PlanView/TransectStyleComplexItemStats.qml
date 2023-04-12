@@ -5,17 +5,34 @@ import QGroundControl               1.0
 import QGroundControl.ScreenTools   1.0
 import QGroundControl.Controls      1.0
 
+import com.fluktor 1.0 //FLKTR
+
 // Statistics section for TransectStyleComplexItems
 Grid {
+    SpreadingUnitComponentController {id: controller;} //FLKTR
+    Component.onCompleted: {
+        controller.open()
+    }
+
     // The following properties must be available up the hierarchy chain
     //property var    missionItem       ///< Mission Item for editor
 
     columns:        2
     columnSpacing:  ScreenTools.defaultFontPixelWidth
 
-    QGCLabel { text: qsTr("Survey Area") }
+    QGCLabel { text: qsTr("Appl. Area") }
     QGCLabel { text: QGroundControl.unitsConversion.squareMetersToAppSettingsAreaUnits(missionItem.coveredArea).toFixed(2) + " " + QGroundControl.unitsConversion.appSettingsAreaUnitsString }
 
+    QGCLabel { text: qsTr("Effective Dist.") } //FLKTR
+    QGCLabel { text: missionItem.effectiveDistance.toFixed(1) + " " + qsTr("m") }
+
+    QGCLabel { text: qsTr("Grit") } //FLKTR
+    QGCLabel { text: controller.libraryEntryWeightedGritName(controller.currentIndex) }
+
+    QGCLabel { text: qsTr("Weight") } //FLKTR
+    QGCLabel { text: ((missionItem.vehicleSpeed>0)?missionItem.effectiveDistance*controller.libraryEntryWeightedGrit(controller.currentIndex)/(missionItem.vehicleSpeed*1000):0).toFixed(1) + " " + qsTr("kg") }
+
+    /* FLKTR
     QGCLabel { text: qsTr("Photo Count") }
     QGCLabel { text: missionItem.cameraShots }
 
@@ -24,4 +41,5 @@ Grid {
 
     QGCLabel { text: qsTr("Trigger Distance") }
     QGCLabel { text: missionItem.cameraCalc.adjustedFootprintFrontal.valueString + " " + missionItem.cameraCalc.adjustedFootprintFrontal.units }
+    */
 }

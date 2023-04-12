@@ -360,6 +360,7 @@ void TransectStyleComplexItem::setMissionFlightStatus(MissionController::Mission
         // Vehicle speed change affects max climb/descent rates calcs for terrain so we need to re-adjust
         _rebuildTransects();
         emit timeBetweenShotsChanged();
+        emit vehicleSpeedChanged();
     }
 }
 
@@ -384,6 +385,10 @@ void TransectStyleComplexItem::_updateCoordinateAltitudes(void)
 double TransectStyleComplexItem::coveredArea(void) const
 {
     return _surveyAreaPolygon.area();
+}
+
+double TransectStyleComplexItem::effectiveDistance() const {
+    return _effectiveDistance; //the value is actually recalculated while building the transects
 }
 
 bool TransectStyleComplexItem::_hasTurnaround(void) const
@@ -481,6 +486,9 @@ void TransectStyleComplexItem::_rebuildTransects(void)
     emit maxAMSLAltitudeChanged();
 
     emit _updateFlightPathSegmentsSignal();
+
+    emit effectiveDistanceChanged(); //FLKTR
+
     _amslEntryAltChanged();
     _amslExitAltChanged();
 }
@@ -1189,8 +1197,15 @@ void TransectStyleComplexItem::_appendConditionGate(QList<MissionItem*>& items, 
     items.append(item);
 }
 
-void TransectStyleComplexItem::_appendCameraTriggerDistance(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum, float triggerDistance)
-{
+void TransectStyleComplexItem::_appendCameraTriggerDistance(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum, float triggerDistance) {
+/*  FLKTR:
+    We reinterprete this function to set the PWM AUX actuators to the desired values to control the motors
+    of the attached spraying and spreading units.
+    We interprete the value of the triggerDistance to be the percentage of the motor performance and map the
+    value to the range [-1,1] according to teh specification of MAV_CMD_DO_SET_ACTUATOR
+    (https://mavlink.io/en/messages/common.html#MAV_CMD_DO_SET_ACTUATOR).
+ */
+    /*
     MissionItem* item = new MissionItem(seqNum++,
                                         MAV_CMD_DO_SET_CAM_TRIGG_DIST,
                                         MAV_FRAME_MISSION,
@@ -1200,7 +1215,25 @@ void TransectStyleComplexItem::_appendCameraTriggerDistance(QList<MissionItem*>&
                                         0, 0, 0, 0,                     // param 4-7 unused
                                         true,                           // autoContinue
                                         false,                          // isCurrentItem
+                                        missionItemParent);*/
+    //map triggerDistance to [-1,1]
+    triggerDistance = qMax(0.0f, qMin(100.0f, triggerDistance));
+    float p = 2.0*triggerDistance/100.0f-1.0f;
+    p=qMax(-1.0f, qMin(1.0f, p));
+    MissionItem* item = new MissionItem(seqNum++,
+                                        MAV_CMD_DO_SET_ACTUATOR,
+                                        MAV_FRAME_MISSION,
+                                        p, //param1 -> PWM AUX1
+                                        p,  //param2 -> PWM AUX2
+                                        1,  //param3 -> PWM AUX3
+                                        0, //param4 unused
+                                        0, //param5 unused
+                                        0, //param6 unused
+                                        0, //param7 unused
+                                        true,                           // autoContinue
+                                        false,                          // isCurrentItem
                                         missionItemParent);
+    qDebug() << "MAV_CMD_DO_SET_ACTUATOR " << p;
     items.append(item);
 }
 
