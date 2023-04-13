@@ -22,7 +22,7 @@
 
 QGC_LOGGING_CATEGORY(CorridorScanComplexItemLog, "CorridorScanComplexItemLog")
 
-const QString CorridorScanComplexItem::name(CorridorScanComplexItem::tr("Corridor Scan"));
+const QString CorridorScanComplexItem::name(CorridorScanComplexItem::tr("Corridor")); //FLKTR
 
 const char* CorridorScanComplexItem::settingsGroup =            "CorridorScan";
 const char* CorridorScanComplexItem::corridorWidthName =        "CorridorWidth";
@@ -224,6 +224,8 @@ void CorridorScanComplexItem::_rebuildTransectsPhase1(void)
     if (_ignoreRecalc) {
         return;
     }
+    _effectiveDistance=0; //FLKTR
+    bool ctita = cameraTriggerInTurnAround()->rawValue().toBool(); //FLKTR
 
     // If the transects are getting rebuilt then any previsouly loaded mission items are now invalid
     if (_loadedMissionItemsParent) {
@@ -264,6 +266,13 @@ void CorridorScanComplexItem::_rebuildTransectsPhase1(void)
             coordInfo = { transectCoords.last(), CoordTypeSurveyExit };
             transect.append(coordInfo);
 
+            //FLKTR
+            CoordInfo_t c0=*transect.begin(); //the first added dist is 0!
+            for(const auto &t : transect) {
+                _effectiveDistance += c0.coord.distanceTo(t.coord);
+                c0 = t;
+            }
+
             // Extend the transect ends for turnaround
             if (_hasTurnaround()) {
                 QGeoCoordinate turnaroundCoord;
@@ -280,6 +289,10 @@ void CorridorScanComplexItem::_rebuildTransectsPhase1(void)
                 turnaroundCoord.setAltitude(qQNaN());
                 coordInfo = { turnaroundCoord, CoordTypeTurnaround };
                 transect.append(coordInfo);
+
+                if(ctita) { //FLKTR
+                    _effectiveDistance += 2.0*turnAroundDistance;
+                }
             }
 
 #if 0
@@ -360,6 +373,20 @@ void CorridorScanComplexItem::_rebuildTransectsPhase1(void)
                 reverseVertices = true;
             }
             _transects[i] = transectVertices;
+        }
+    }
+
+    if(ctita) {
+        //FLKTR: calculate effective length
+        CoordInfo_t c0={QGeoCoordinate(0, 0, 0), CoordTypeSurveyEntry}; //placeholder for last coord
+        for (const auto& transect : _transects) {
+            //we add the distance between 2 consecutive CoordTypeTurnaround's
+            for(const CoordInfo_t &ci : transect ) {
+                if(c0.coordType == CoordTypeTurnaround && ci.coordType == CoordTypeTurnaround) {
+                    _effectiveDistance += c0.coord.distanceTo(ci.coord);
+                }
+                c0=ci;
+            }
         }
     }
 }

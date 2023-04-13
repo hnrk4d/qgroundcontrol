@@ -15,7 +15,7 @@ import QGroundControl.FlightMap     1.0
 
 TransectStyleComplexItemEditor {
     transectAreaDefinitionComplete: missionItem.surveyAreaPolygon.isValid
-    transectAreaDefinitionHelp:     qsTr("Use the Polygon Tools to create the polygon which outlines your survey area.")
+    transectAreaDefinitionHelp:     qsTr("Use the Polygon Tools to create the polygon which outlines your application area.") //FLKTR
     transectValuesHeaderName:       qsTr("Transects")
     transectValuesComponent:        _transectValuesComponent
     presetsTransectValuesComponent: _transectValuesComponent
@@ -73,12 +73,14 @@ TransectStyleComplexItemEditor {
                 visible:            !forPresets
 
                 model: [
+                    /*FLKTR
                     {
                         text:       qsTr("Hover and capture image"),
                         fact:       missionItem.hoverAndCapture,
                         enabled:    missionItem.cameraCalc.distanceMode === QGroundControl.AltitudeModeRelative || missionItem.cameraCalc.distanceMode === QGroundControl.AltitudeModeAbsolute,
                         visible:    missionItem.hoverAndCaptureAllowed
                     },
+                    */
                     {
                         text:       qsTr("Refly at 90 deg offset"),
                         fact:       missionItem.refly90Degrees,
@@ -86,7 +88,7 @@ TransectStyleComplexItemEditor {
                         visible:    true
                     },
                     {
-                        text:       qsTr("Images in turnarounds"),
+                        text:       qsTr("App. in turnarounds"), //FLKTR
                         fact:       missionItem.cameraTriggerInTurnAround,
                         enabled:    missionItem.hoverAndCaptureAllowed ? !missionItem.hoverAndCapture.rawValue : true,
                         visible:    true

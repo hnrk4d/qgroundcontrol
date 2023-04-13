@@ -49,8 +49,8 @@ public:
     void    loadPreset          (const QString& name);
 
     // Overrides from VisualMissionionItem
-    QString             commandDescription  (void) const final { return tr("Corridor Scan"); }
-    QString             commandName         (void) const final { return tr("Corridor Scan"); }
+    QString             commandDescription  (void) const final { return tr("Corridor"); } //FLKTR
+    QString             commandName         (void) const final { return tr("Corridor"); }
     QString             abbreviation        (void) const final { return tr("C"); }
     ReadyForSaveState   readyForSaveState   (void) const final;
     double              additionalTimeDelay (void) const final { return 0; }
