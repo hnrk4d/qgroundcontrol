@@ -13,6 +13,8 @@ import QGroundControl.FactControls  1.0
 import QGroundControl.Palette       1.0
 import QGroundControl.FlightMap     1.0
 
+import com.fluktor 1.0 //FLKTR
+
 TransectStyleComplexItemEditor {
     transectAreaDefinitionComplete: _missionItem.corridorPolyline.isValid
     transectAreaDefinitionHelp:     qsTr("Use the Polyline Tools to create the polyline which defines the corridor.")
@@ -49,6 +51,26 @@ TransectStyleComplexItemEditor {
                 fact:               _missionItem.turnAroundDistance
                 Layout.fillWidth:   true
                 visible:            !forPresets
+            }
+
+            QGCComboBox {
+                Layout.fillWidth:   true
+                Layout.columnSpan:  2
+                function createModel() {
+                    var l = []
+                    for(var i=0; i<SpreadingUnitComponentController.librarySize; i++) {
+                        var text = SpreadingUnitComponentController.libraryEntryWeightedGritName(i)+" ["+
+                                SpreadingUnitComponentController.libraryEntryWeightedGrit(i)+"g, "+
+                                SpreadingUnitComponentController.libraryEntrySec(i)+"sec, "+
+                                SpreadingUnitComponentController.libraryMotorPercentage(i)+"%]"
+                        l.push(text)
+                    }
+                    return l
+                }
+
+                model : {SpreadingUnitComponentController.librarySize; createModel()} //create dependency
+                currentIndex: SpreadingUnitComponentController.currentIndex
+                onActivated: SpreadingUnitComponentController.currentIndex = currentIndex
             }
 
             FactCheckBox {

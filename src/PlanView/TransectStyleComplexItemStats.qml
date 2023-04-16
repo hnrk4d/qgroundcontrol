@@ -21,8 +21,8 @@ Grid {
     QGCLabel { text: qsTr("Effective Dist.") } //FLKTR
     QGCLabel { text: missionItem.effectiveDistance.toFixed(1) + " " + qsTr("m") }
 
-    QGCLabel { text: qsTr("Grit") } //FLKTR
-    QGCLabel { text: SpreadingUnitComponentController.libraryEntryWeightedGritName(SpreadingUnitComponentController.currentIndex) }
+    //QGCLabel { text: qsTr("Grit") } //FLKTR
+    //QGCLabel { text: SpreadingUnitComponentController.libraryEntryWeightedGritName(SpreadingUnitComponentController.currentIndex) }
 
     QGCLabel { text: qsTr("Weight") } //FLKTR
     QGCLabel { text: ((missionItem.vehicleSpeed>0)?missionItem.effectiveDistance*SpreadingUnitComponentController.libraryEntryWeightedGrit(SpreadingUnitComponentController.currentIndex)/(missionItem.vehicleSpeed*1000):0).toFixed(1) + " " + qsTr("kg") }
