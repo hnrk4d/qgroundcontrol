@@ -53,24 +53,33 @@ TransectStyleComplexItemEditor {
                 visible:            !forPresets
             }
 
-            QGCComboBox {
+            QGCComboBox { //FLKTR
                 Layout.fillWidth:   true
                 Layout.columnSpan:  2
                 function createModel() {
                     var l = []
                     for(var i=0; i<SpreadingUnitComponentController.librarySize; i++) {
                         var text = SpreadingUnitComponentController.libraryEntryWeightedGritName(i)+" ["+
-                                SpreadingUnitComponentController.libraryEntryWeightedGrit(i)+"g, "+
-                                SpreadingUnitComponentController.libraryEntrySec(i)+"sec, "+
-                                SpreadingUnitComponentController.libraryMotorPercentage(i)+"%]"
+                                SpreadingUnitComponentController.gritPerSec(i, 2)+" g/sec]"
                         l.push(text)
                     }
                     return l
                 }
 
-                model : {SpreadingUnitComponentController.librarySize; createModel()} //create dependency
+                function indexHasChangedHandler() {
+                    //see: SurveyItemEditor.indexHasChangedHandler
+                    _missionItem.cameraCalc.adjustedFootprintFrontal.value = SpreadingUnitComponentController.libraryMotorPercentage(currentIndex)
+                }
+
+                model : {SpreadingUnitComponentController.librarySize; createModel()} //enforce dependency
                 currentIndex: SpreadingUnitComponentController.currentIndex
-                onActivated: SpreadingUnitComponentController.currentIndex = currentIndex
+                onActivated: {
+                    SpreadingUnitComponentController.currentIndex = currentIndex
+                }
+
+                Component.onCompleted: {
+                    SpreadingUnitComponentController.currentIndexChanged.connect(indexHasChangedHandler)
+                }
             }
 
             FactCheckBox {

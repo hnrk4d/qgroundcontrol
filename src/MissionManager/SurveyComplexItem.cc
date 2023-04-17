@@ -180,6 +180,7 @@ bool SurveyComplexItem::load(const QJsonObject& complexObject, int sequenceNumbe
             // Shot count was possibly not available from plan file
             _recalcCameraShots();
         }
+        _rebuildTransects(); //FLKTR: calculate effective distance
     } else {
         // Must be v2 or v3
         QJsonObject v3ComplexObject = complexObject;

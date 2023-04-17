@@ -1233,7 +1233,7 @@ void TransectStyleComplexItem::_appendCameraTriggerDistance(QList<MissionItem*>&
                                         true,                           // autoContinue
                                         false,                          // isCurrentItem
                                         missionItemParent);
-    qDebug() << "MAV_CMD_DO_SET_ACTUATOR " << p;
+    //qDebug() << "MAV_CMD_DO_SET_ACTUATOR " << p;
     items.append(item);
 }
 

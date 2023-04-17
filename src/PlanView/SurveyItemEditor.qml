@@ -69,24 +69,34 @@ TransectStyleComplexItemEditor {
                 visible:            !forPresets
             }
 
-            QGCComboBox {
+            QGCComboBox { //FLKTR
                 Layout.fillWidth:   true
                 Layout.columnSpan:  2
                 function createModel() {
                     var l = []
                     for(var i=0; i<SpreadingUnitComponentController.librarySize; i++) {
                         var text = SpreadingUnitComponentController.libraryEntryWeightedGritName(i)+" ["+
-                                SpreadingUnitComponentController.libraryEntryWeightedGrit(i)+"g, "+
-                                SpreadingUnitComponentController.libraryEntrySec(i)+"sec, "+
-                                SpreadingUnitComponentController.libraryMotorPercentage(i)+"%]"
+                                SpreadingUnitComponentController.gritPerSec(i, 2)+" g/sec]"
                         l.push(text)
                     }
                     return l
                 }
+                function indexHasChangedHandler() {
+                    //each time the index changes we want to update the motor percentage setting of the
+                    //_missionItem. Remember: we reinterprete the camera setting for footprint distance as
+                    //actuator setting for motors. The user still can overwrite the motor setting if he/she wants.
+                    _missionItem.cameraCalc.adjustedFootprintFrontal.value = SpreadingUnitComponentController.libraryMotorPercentage(currentIndex)
+                }
 
-                model : {SpreadingUnitComponentController.librarySize; createModel()} //create dependency
+                model : {SpreadingUnitComponentController.librarySize; createModel()} //enforce dependency
                 currentIndex: SpreadingUnitComponentController.currentIndex
-                onActivated: SpreadingUnitComponentController.currentIndex = currentIndex
+                onActivated: {
+                    SpreadingUnitComponentController.currentIndex = currentIndex
+                }
+
+                Component.onCompleted: {
+                    SpreadingUnitComponentController.currentIndexChanged.connect(indexHasChangedHandler)
+                }
             }
 
             QGCOptionsComboBox {

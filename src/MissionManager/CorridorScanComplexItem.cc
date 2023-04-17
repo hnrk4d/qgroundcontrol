@@ -158,6 +158,7 @@ bool CorridorScanComplexItem::_loadWorker(const QJsonObject& complexObject, int 
         // Shot count was possibly not available from plan file
         _recalcCameraShots();
     }
+    _rebuildTransects(); //FLKTR: calculate effective distance
 
     return true;
 }
