@@ -279,7 +279,7 @@ Rectangle {
 
             CameraSection {
                 checked:    missionItem.cameraSection.settingsSpecified
-                visible:    missionItem.cameraSection.available
+                visible:    false //FLKTR: missionItem.cameraSection.available
             }
         }
     }
