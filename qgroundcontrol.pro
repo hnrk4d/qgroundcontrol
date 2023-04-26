@@ -54,7 +54,7 @@ LinuxBuild {
 }
 
 WindowsBuild {
-    RC_ICONS = resources/icons/qgroundcontrol.ico
+    RC_ICONS = $$PWD/../flktrqgc/res/Icons/qgroundcontrol.ico
     CONFIG += resources_big
 }
 
