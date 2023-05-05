@@ -93,10 +93,7 @@ NTRIPTCPLink::~NTRIPTCPLink(void)
             delete _vrsSendTimer;
             _vrsSendTimer = nullptr;
         }
-        QObject::disconnect(_socket, &QTcpSocket::readyRead, this, &NTRIPTCPLink::_readBytes);
-        _socket->disconnectFromHost();
-        _socket->deleteLater();
-        _socket = nullptr;
+        _disconnectTcpSocket();
 
         // Delete Rtcm Parsing instance
         delete(_rtcm_parsing);
@@ -104,6 +101,15 @@ NTRIPTCPLink::~NTRIPTCPLink(void)
     }
     quit();
     wait();
+}
+
+void NTRIPTCPLink::_disconnectTcpSocket() {
+    if(_socket) {
+        QObject::disconnect(_socket, &QTcpSocket::readyRead, this, &NTRIPTCPLink::_readBytes);
+        _socket->disconnectFromHost();
+        _socket->deleteLater();
+        _socket = nullptr;
+    }
 }
 
 void NTRIPTCPLink::run(void)
@@ -227,14 +233,14 @@ void NTRIPTCPLink::_sendNMEA() {
 
         // Calculrate checksum and send message
         QString checkSum = _getCheckSum(line);
-        QString* nmeaMessage = new QString(line + "*" + checkSum + "\r\n");
+        QString nmeaMessage = QString(line + "*" + checkSum + "\r\n");
 
         // Write nmea message
         if(_socket) {
-            _socket->write(nmeaMessage->toUtf8());
+            _socket->write(nmeaMessage.toUtf8());
         }
 
-        qCDebug(NTRIPLog) << "NMEA Message : " << nmeaMessage->toUtf8();
+        qCDebug(NTRIPLog) << "NMEA Message : " << nmeaMessage.toUtf8();
     }
 }
 

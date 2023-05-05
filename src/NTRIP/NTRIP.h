@@ -53,6 +53,7 @@ private:
 
     void _hardwareConnect(void);
     void _parse(const QByteArray &buffer);
+    void _disconnectTcpSocket();
 
     QTcpSocket*     _socket =   nullptr;
 
