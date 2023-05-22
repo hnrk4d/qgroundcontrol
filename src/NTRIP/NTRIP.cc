@@ -143,12 +143,18 @@ void NTRIPTCPLink::_hardwareConnect()
         return;
     }
 
-    // If mountpoint is specified, send an http get request for data
-    if ( !_mountpoint.isEmpty()) {
+    // If username is specified, send an http get request for data
+    if (!_username.isEmpty()) {
         qCDebug(NTRIPLog) << "Sending HTTP request";
-        QString auth = QString(_username + ":"  + _password).toUtf8().toBase64();
+        QString auth = _username;
+        if (!_password.isEmpty()) {
+            auth += ":"+_password;
+        }
+        auth=auth.toUtf8().toBase64();
         QString query = "GET /%1 HTTP/1.0\r\nUser-Agent: NTRIP\r\nAuthorization: Basic %2\r\n\r\n";
-        _socket->write(query.arg(_mountpoint).arg(auth).toUtf8());
+        QByteArray str = query.arg(_mountpoint).arg(auth).toUtf8();
+        qCDebug(NTRIPLog) << str;
+        _socket->write(str);
         _state = NTRIPState::waiting_for_http_response;
     } else {
         // If no mountpoint is set, assume we will just get data from the tcp stream
@@ -189,7 +195,8 @@ void NTRIPTCPLink::_readBytes(void)
         return;
     }
     if(_state == NTRIPState::waiting_for_http_response) {
-        QString line = _socket->readLine();
+        QString line = _socket->readAll();
+        qCDebug(NTRIPLog) << line;
         if (line.contains("200")){
             _state = NTRIPState::waiting_for_rtcm_header;
         } else {
@@ -198,8 +205,10 @@ void NTRIPTCPLink::_readBytes(void)
             // Just move into parsing mode and hope for now.
             _state = NTRIPState::waiting_for_rtcm_header;
         }
+        return;
     }
     QByteArray bytes = _socket->readAll();
+    qCDebug(NTRIPLog) << bytes;
     _parse(bytes);
 }
 
@@ -237,10 +246,9 @@ void NTRIPTCPLink::_sendNMEA() {
 
         // Write nmea message
         if(_socket) {
+            qCDebug(NTRIPLog) << "write NMEA Message : " << nmeaMessage.toUtf8();
             _socket->write(nmeaMessage.toUtf8());
         }
-
-        qCDebug(NTRIPLog) << "NMEA Message : " << nmeaMessage.toUtf8();
     }
 }
 
