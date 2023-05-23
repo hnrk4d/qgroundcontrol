@@ -27,7 +27,7 @@ void RTCMMavlink::RTCMDataUpdate(QByteArray message)
     _bandwidthByteCounter += message.size();
     qint64 elapsed = _bandwidthTimer.elapsed();
     if (elapsed > 1000) {
-        printf("RTCM bandwidth: %.2f kB/s\n", (float) _bandwidthByteCounter / elapsed * 1000.f / 1024.f);
+        qCDebug(NTRIPLog) << "RTCM bandwidth: " << (_bandwidthByteCounter / elapsed * 1000.f / 1024.f) << " kB/s";
         _bandwidthTimer.restart();
         _bandwidthByteCounter = 0;
     }
@@ -78,6 +78,8 @@ void RTCMMavlink::sendMessageToVehicle(const mavlink_gps_rtcm_data_t& msg)
                                                   &message,
                                                   &msg);
             vehicle->sendMessageOnLinkThreadSafe(sharedLink.get(), message);
+
+            qCDebug(NTRIPLog) << "RTCMMavlink::sendMessageToVehicle " << message.msgid;
         }
     }
 }
