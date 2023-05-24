@@ -138,17 +138,17 @@ Rectangle {
             } // Grid Column
 
             // Camera Tab
-            CameraCalcCamera {
+            /*CameraCalcCamera {
                 Layout.fillWidth:   true
                 visible:            tabBar.currentIndex === 1
                 cameraCalc:         _missionItem.cameraCalc
-            }
+            }*/
 
             // Terrain Tab
             TransectStyleComplexItemTerrainFollow {
                 Layout.fillWidth:   true
                 spacing:            _margin
-                visible:            tabBar.currentIndex === 2
+                visible:            tabBar.currentIndex === 1 //2 FLKTR
                 missionItem:        _missionItem
             }
 
@@ -156,7 +156,7 @@ Rectangle {
             ColumnLayout {
                 Layout.fillWidth:   true
                 spacing:            _margin
-                visible:            tabBar.currentIndex === 3
+                visible:            tabBar.currentIndex === 2 //3 FLKTR
 
                 QGCLabel {
                     Layout.fillWidth:   true
