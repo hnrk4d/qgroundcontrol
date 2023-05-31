@@ -254,15 +254,17 @@ void NTRIPTCPLink::_sendNMEA() {
 
     QString time = QDateTime::currentDateTimeUtc().toString("hhmmss.zzz");
 
-    if(lat != 0 || lng != 0) {
+    if(!std::isnan(lat) && !std::isnan(lng)) {
         double latdms = (int) lat + (lat - (int) lat) * .6f;
         double lngdms = (int) lng + (lng - (int) lng) * .6f;
-        if(isnan(alt)) alt = 0.0;
+        if(isnan(alt) || alt<0.0) alt = 0.0;
 
         QString line = QString("$GP%1,%2,%3,%4,%5,%6,%7,%8,%9,%10,%11,%12,%13,%14,%15")
                 .arg("GGA", time,
-                     QString::number(qFabs(latdms * 100), 'f', 2), lat < 0 ? "S" : "N",
-                     QString::number(qFabs(lngdms * 100), 'f', 2), lng < 0 ? "W" : "E",
+                     QString("%1").arg((double)qFabs(latdms * 100), 7, 'f', 2, '0'), //leading zeros are very important
+                     lat < 0 ? "S" : "N",
+                     QString("%1").arg((double)qFabs(lngdms * 100), 8, 'f', 2, '0'), //ditto
+                     lng < 0 ? "W" : "E",
                      "1", "10", "1",
                      QString::number(alt, 'f', 2),
                      "M", "0", "M", "0.0", "0");
