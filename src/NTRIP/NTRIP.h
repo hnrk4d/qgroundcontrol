@@ -51,7 +51,6 @@ private:
         accumulating_rtcm_packet,
     };
 
-    void _hardwareConnect(void);
     void _parse(const QByteArray &buffer);
     void _disconnectTcpSocket();
 
@@ -75,6 +74,10 @@ private:
     // VRS Timer
     QTimer*          _vrsSendTimer;
     static const int _vrsSendRateMSecs = 3000;
+
+    // Socket connection
+    QTimer*          _socketConnectTimer;
+    void _hardwareConnect(void);
 
     RTCMParsing *_rtcm_parsing{nullptr};
     NTRIPState _state;
