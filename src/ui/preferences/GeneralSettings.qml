@@ -1098,7 +1098,6 @@ Rectangle {
                             FactTextField {
                                 fact:                   ntripGrid.ntripSettings.ntripServerHostAddress
                                 visible:                ntripGrid.ntripSettings.ntripServerHostAddress.visible
-                                Layout.preferredWidth:  _valueFieldWidth
                             }
 
                             QGCLabel {
@@ -1108,7 +1107,6 @@ Rectangle {
                             FactTextField {
                                 fact:                   ntripGrid.ntripSettings.ntripServerPort
                                 visible:                ntripGrid.ntripSettings.ntripServerPort.visible
-                                Layout.preferredWidth:  _valueFieldWidth
                             }
 
                             QGCLabel {
@@ -1118,7 +1116,6 @@ Rectangle {
                             FactTextField {
                                 fact:                   ntripGrid.ntripSettings.ntripUsername
                                 visible:                ntripGrid.ntripSettings.ntripUsername.visible
-                                Layout.preferredWidth:  _valueFieldWidth
                             }
 
                             QGCLabel {
@@ -1128,7 +1125,6 @@ Rectangle {
                             FactTextField {
                                 fact:                   ntripGrid.ntripSettings.ntripPassword
                                 visible:                ntripGrid.ntripSettings.ntripPassword.visible
-                                Layout.preferredWidth:  _valueFieldWidth
                             }
 
                             QGCLabel {
@@ -1138,7 +1134,6 @@ Rectangle {
                             FactTextField {
                                 fact:                   ntripGrid.ntripSettings.ntripMountpoint
                                 visible:                ntripGrid.ntripSettings.ntripMountpoint.visible
-                                Layout.preferredWidth:  _valueFieldWidth
                             }
 
                             QGCLabel {
@@ -1148,7 +1143,6 @@ Rectangle {
                             FactTextField {
                                 fact:                   ntripGrid.ntripSettings.ntripWhitelist
                                 visible:                ntripGrid.ntripSettings.ntripWhitelist.visible
-                                Layout.preferredWidth:  _valueFieldWidth
                             }
                         }
                     }

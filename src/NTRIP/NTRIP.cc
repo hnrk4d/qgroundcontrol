@@ -233,14 +233,13 @@ void NTRIPTCPLink::_sendNMEA() {
     QGeoCoordinate position = _toolbox->qgcPositionManager()->gcsPosition();
 
     if(!position.isValid()) {
-        qCDebug(NTRIPLog) << "no valid controller geolocation, trying vehicle position";
         if(_toolbox &&
             _toolbox->multiVehicleManager() &&
             _toolbox->multiVehicleManager()->activeVehicleAvailable() &&
             _toolbox->multiVehicleManager()->activeVehicle()) {
             position=_toolbox->multiVehicleManager()->activeVehicle()->coordinate();
             if(!position.isValid()) {
-                qCDebug(NTRIPLog) << "no valid drone geolocation, giving up";
+                qCDebug(NTRIPLog) << "no valid drone or vehicle geolocation, giving up";
                 return;
             }
         }

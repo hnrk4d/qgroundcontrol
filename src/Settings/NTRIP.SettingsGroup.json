@@ -60,7 +60,7 @@
     "shortDesc":     "Enable NTRIP VRS",
     "longDesc":      "Check to Enable VRS RTK",
     "type":                 "bool",
-    "default":         false,
+    "default":         true,
     "qgcRebootRequired":    true
 }
 ]

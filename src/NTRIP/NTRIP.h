@@ -73,7 +73,7 @@ private:
 
     // VRS Timer
     QTimer*          _vrsSendTimer;
-    static const int _vrsSendRateMSecs = 3000;
+    static const int _vrsSendRateMSecs = 10000;
 
     // Socket connection
     QTimer*          _socketConnectTimer;
