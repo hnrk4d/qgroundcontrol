@@ -64,6 +64,8 @@ NTRIPTCPLink::NTRIPTCPLink(const QString& hostAddress,
     , _password     (password)
     , _mountpoint   (mountpoint)
     , _isVRSEnable  (enableVRS)
+    , _vrsSendTimer(0)
+    , _socketConnectTimer(0)
     , _toolbox      (qgcApp()->toolbox())
 {
     for(const auto& msg: whitelist.split(',')) {
@@ -84,8 +86,13 @@ NTRIPTCPLink::NTRIPTCPLink(const QString& hostAddress,
     start();
 }
 
-NTRIPTCPLink::~NTRIPTCPLink(void)
-{
+NTRIPTCPLink::~NTRIPTCPLink(void) {
+    if(_socketConnectTimer) {
+        _socketConnectTimer->stop();
+        QObject::disconnect(_socketConnectTimer, &QTimer::timeout, this, &NTRIPTCPLink::_hardwareConnect);
+        delete _socketConnectTimer;
+        _socketConnectTimer=0;
+    }
     if (_socket) {
         if(_isVRSEnable) {
             _vrsSendTimer->stop();
@@ -112,9 +119,12 @@ void NTRIPTCPLink::_disconnectTcpSocket() {
     }
 }
 
-void NTRIPTCPLink::run(void)
-{
-    _hardwareConnect();
+void NTRIPTCPLink::run(void) {
+    _socketConnectTimer = new QTimer();
+    _socketConnectTimer->setInterval(5000);
+    _socketConnectTimer->setSingleShot(false);
+    QObject::connect(_socketConnectTimer,&QTimer::timeout, this, &NTRIPTCPLink::_hardwareConnect);
+    _socketConnectTimer->start();
 
     // Init VRS Timer
     if(_isVRSEnable) {
@@ -128,20 +138,24 @@ void NTRIPTCPLink::run(void)
     exec();
 }
 
-void NTRIPTCPLink::_hardwareConnect()
-{
-    _socket = new QTcpSocket();
-    QObject::connect(_socket, &QTcpSocket::readyRead, this, &NTRIPTCPLink::_readBytes);
-    _socket->connectToHost(_hostAddress, static_cast<quint16>(_port));
-
-    // Give the socket a second to connect to the other side otherwise error out
-    if (!_socket->waitForConnected(1000)) {
-        qCDebug(NTRIPLog) << "NTRIP Socket failed to connect";
-        emit error(_socket->errorString());
-        delete _socket;
-        _socket = nullptr;
+void NTRIPTCPLink::_hardwareConnect() {
+    if(_socket) {
+        //nothing to do
         return;
     }
+    qCDebug(NTRIPLog) << "NTRIP Socket trying to connect";
+    _socket = new QTcpSocket();
+    _socket->connectToHost(_hostAddress, static_cast<quint16>(_port));
+
+    // Give the socket time to connect to the other side otherwise error out
+    if (!_socket->waitForConnected(4000)) {
+        qCDebug(NTRIPLog) << _socket->errorString();
+        delete _socket;
+        _socket = 0;
+        return;
+    }
+
+    QObject::connect(_socket, &QTcpSocket::readyRead, this, &NTRIPTCPLink::_readBytes);
 
     // If username is specified, send an http get request for data
     if (!_username.isEmpty()) {
@@ -151,8 +165,10 @@ void NTRIPTCPLink::_hardwareConnect()
             auth += ":"+_password;
         }
         auth=auth.toUtf8().toBase64();
-        QString query = "GET /%1 HTTP/1.0\r\nUser-Agent: NTRIP\r\nAuthorization: Basic %2\r\n\r\n";
-        QByteArray str = query.arg(_mountpoint).arg(auth).toUtf8();
+        //QString query = "GET /%1 HTTP/1.0\r\nUser-Agent: NTRIP\r\nAuthorization: Basic %2\r\n\r\n";
+        QString query = "GET /%1 HTTP/1.1\r\nHost: %2:%3\r\nNtrip-Version: Ntrip/2.0\r\nUser-Agent: NTRIP Fluktor/1.0\r\n"
+                        "Authorization: Basic %4\r\nConnection: close\r\n\r\n";
+        QByteArray str = query.arg(_mountpoint).arg(_hostAddress).arg(_port).arg(auth).toUtf8();
         qCDebug(NTRIPLog) << str;
         _socket->write(str);
         _state = NTRIPState::waiting_for_http_response;
@@ -162,6 +178,7 @@ void NTRIPTCPLink::_hardwareConnect()
     }
 
     qCDebug(NTRIPLog) << "NTRIP Socket connected";
+    return;
 }
 
 void NTRIPTCPLink::_parse(const QByteArray &buffer)
@@ -213,15 +230,25 @@ void NTRIPTCPLink::_readBytes(void)
 }
 
 void NTRIPTCPLink::_sendNMEA() {
-    QGeoCoordinate gcsPosition = _toolbox->qgcPositionManager()->gcsPosition();
+    QGeoCoordinate position = _toolbox->qgcPositionManager()->gcsPosition();
 
-    if(!gcsPosition.isValid()) {
-        return;
+    if(!position.isValid()) {
+        qCDebug(NTRIPLog) << "no valid controller geolocation, trying vehicle position";
+        if(_toolbox &&
+            _toolbox->multiVehicleManager() &&
+            _toolbox->multiVehicleManager()->activeVehicleAvailable() &&
+            _toolbox->multiVehicleManager()->activeVehicle()) {
+            position=_toolbox->multiVehicleManager()->activeVehicle()->coordinate();
+            if(!position.isValid()) {
+                qCDebug(NTRIPLog) << "no valid drone geolocation, giving up";
+                return;
+            }
+        }
     }
 
-    double lat = gcsPosition.latitude();
-    double lng = gcsPosition.longitude();
-    double alt = gcsPosition.altitude();
+    double lat = position.latitude();
+    double lng = position.longitude();
+    double alt = position.altitude();
 
     qCDebug(NTRIPLog) << "lat : " << lat << " lon : " << lng << " alt : " << alt;
 
@@ -240,7 +267,7 @@ void NTRIPTCPLink::_sendNMEA() {
                      QString::number(alt, 'f', 2),
                      "M", "0", "M", "0.0", "0");
 
-        // Calculrate checksum and send message
+        // Calculate checksum and send message
         QString checkSum = _getCheckSum(line);
         QString nmeaMessage = QString(line + "*" + checkSum + "\r\n");
 
