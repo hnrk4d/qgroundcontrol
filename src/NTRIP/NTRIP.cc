@@ -80,6 +80,7 @@ NTRIPTCPLink::NTRIPTCPLink(const QString& hostAddress,
     }
     _rtcm_parsing->reset();
     _state = NTRIPState::uninitialised;
+    _lastPackageReceived = QTime::currentTime();
 
     // Start TCP Socket
     moveToThread(this);
@@ -120,6 +121,7 @@ void NTRIPTCPLink::_disconnectTcpSocket() {
 }
 
 void NTRIPTCPLink::run(void) {
+    sleep(120); //give drone some time to connect and param transfer
     _socketConnectTimer = new QTimer();
     _socketConnectTimer->setInterval(5000);
     _socketConnectTimer->setSingleShot(false);
@@ -139,10 +141,19 @@ void NTRIPTCPLink::run(void) {
 }
 
 void NTRIPTCPLink::_hardwareConnect() {
+    if(abs(QTime::currentTime().secsTo(_lastPackageReceived)) > 30) {
+        //something wrong, last received package time too long ago
+        _disconnectTcpSocket();
+        _lastPackageReceived=QTime::currentTime(); //avoid disconnect next loop
+        //the reconnect happens in the next loop
+        qCDebug(NTRIPLog) << "no response from server, trying to reconnect";
+        return;
+    }
     if(_socket) {
         //nothing to do
         return;
     }
+
     qCDebug(NTRIPLog) << "NTRIP Socket trying to connect";
     _socket = new QTcpSocket();
     _socket->connectToHost(_hostAddress, static_cast<quint16>(_port));
@@ -226,6 +237,7 @@ void NTRIPTCPLink::_readBytes(void)
     }
     QByteArray bytes = _socket->readAll();
     qCDebug(NTRIPLog) << bytes;
+    _lastPackageReceived=QTime::currentTime();
     _parse(bytes);
 }
 

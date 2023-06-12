@@ -78,6 +78,7 @@ private:
     // Socket connection
     QTimer*          _socketConnectTimer;
     void _hardwareConnect(void);
+    QTime _lastPackageReceived;
 
     RTCMParsing *_rtcm_parsing{nullptr};
     NTRIPState _state;
