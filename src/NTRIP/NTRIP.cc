@@ -141,7 +141,7 @@ void NTRIPTCPLink::run(void) {
 }
 
 void NTRIPTCPLink::_hardwareConnect() {
-    if(abs(QTime::currentTime().secsTo(_lastPackageReceived)) > 30) {
+    if(abs(QTime::currentTime().secsTo(_lastPackageReceived)) > 60) {
         //something wrong, last received package time too long ago
         _disconnectTcpSocket();
         _lastPackageReceived=QTime::currentTime(); //avoid disconnect next loop
@@ -251,7 +251,7 @@ void NTRIPTCPLink::_sendNMEA() {
             _toolbox->multiVehicleManager()->activeVehicle()) {
             position=_toolbox->multiVehicleManager()->activeVehicle()->coordinate();
             if(!position.isValid()) {
-                qCDebug(NTRIPLog) << "no valid drone or vehicle geolocation, giving up";
+                qCDebug(NTRIPLog) << "no valid drone or groundstation geolocation, giving up";
                 return;
             }
         }
