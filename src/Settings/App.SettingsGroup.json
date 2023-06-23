@@ -325,6 +325,13 @@
     "longDesc":  "Host name to forward mavlink to. i.e: localhost:14445",
     "type":             "string",
     "default":     "localhost:14445"
+},
+{
+    "name":             "dsmFilePath",
+    "shortDesc": "DSM file as terrain provider",
+    "longDesc":  "Select the file to provide the DSM data for terrain data",
+    "type":       "string",
+    "default":     ""
 }
 ]
 }

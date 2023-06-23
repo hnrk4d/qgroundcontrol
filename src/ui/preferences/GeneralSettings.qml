@@ -24,12 +24,15 @@ import QGroundControl.Palette               1.0
 import QGroundControl.Controllers           1.0
 import QGroundControl.SettingsManager       1.0
 
+import com.fluktor 1.0
+
 Rectangle {
     id:                 _root
     color:              qgcPal.window
     anchors.fill:       parent
     anchors.margins:    ScreenTools.defaultFontPixelWidth
 
+    property Fact _dsmFilePath:                         QGroundControl.settingsManager.appSettings.dsmFilePath
     property Fact _savePath:                            QGroundControl.settingsManager.appSettings.savePath
     property Fact _appFontPointSize:                    QGroundControl.settingsManager.appSettings.appFontPointSize
     property Fact _userBrandImageIndoor:                QGroundControl.settingsManager.brandImageSettings.userBrandImageIndoor
@@ -267,7 +270,6 @@ Rectangle {
                                 }
                                 FactTextField {
                                     id:                     guidedMinAltField
-                                    Layout.preferredWidth:  _valueFieldWidth
                                     visible:                fact.visible
                                     fact:                   _flyViewSettings.guidedMinimumAltitude
                                 }
@@ -278,7 +280,6 @@ Rectangle {
                                 }
                                 FactTextField {
                                     id:                     guidedMaxAltField
-                                    Layout.preferredWidth:  _valueFieldWidth
                                     visible:                fact.visible
                                     fact:                   _flyViewSettings.guidedMaximumAltitude
                                 }
@@ -289,7 +290,6 @@ Rectangle {
                                 }
                                 FactTextField {
                                     id:                     maxGotoDistanceField
-                                    Layout.preferredWidth:  _valueFieldWidth
                                     visible:                fact.visible
                                     fact:                  _flyViewSettings.maxGoToLocationDistance
                                 }
@@ -448,13 +448,11 @@ Rectangle {
 
                                 QGCLabel { text: qsTr("Default Mission Altitude") }
                                 FactTextField {
-                                    Layout.preferredWidth:  _valueFieldWidth
                                     fact:                   QGroundControl.settingsManager.appSettings.defaultMissionItemAltitude
                                 }
 
                                 QGCLabel { text: qsTr("VTOL TransitionDistance") }
                                 FactTextField {
-                                    Layout.preferredWidth:  _valueFieldWidth
                                     fact:                   QGroundControl.settingsManager.planViewSettings.vtolTransitionDistance
                                 }
                             }
@@ -468,6 +466,47 @@ Rectangle {
                                 text:       qsTr("Missions Do Not Require Takeoff Item")
                                 fact:       _planViewSettings.takeoffItemNotRequired
                                 visible:    _planViewSettings.takeoffItemNotRequired.visible
+                            }
+                            //-----------------------------------------------------------------
+                            //-- FLKTR: DSM file access
+                            RowLayout {
+                                visible:            _dsmFilePath.visible
+
+                                QGCLabel { text: qsTr("DSM file") }
+                                QGCTextField {
+                                    Layout.fillWidth:   true
+                                    readOnly:           false
+                                    text:               _dsmFilePath.value
+                                    onEditingFinished: {
+                                        if(text === "") {
+                                            _dsmFilePath.rawValue = text
+                                        }
+                                        else if(DSMFileController.open(text)) {
+                                            _dsmFilePath.rawValue = text
+                                        }
+                                    }
+                                }
+                                QGCButton {
+                                    text:       qsTr("Browse")
+                                    onClicked:  savePathBrowseDialog1.openForLoad()
+                                    QGCFileDialog {
+                                        id:             savePathBrowseDialog1
+                                        title:          qsTr("Select DSM file")
+                                        folder:         _dsmFilePath.rawValue
+                                        selectExisting: true
+                                        selectFolder:   false
+                                        nameFilters: [ "GeoTiff files (*.tif *.tiff)", "All files (*)" ]
+                                        onAcceptedForLoad: {
+                                            if(DSMFileController.open(file)) {
+                                                _dsmFilePath.rawValue = file
+                                            }
+                                            else {
+                                                mainWindow.showMessageDialog(qsTr("File format issue"),
+                                                                             qsTr("The specified DSM file cannot be opened or does not comply to the required specification. Please make sure it is a single band Float32 Geotiff file."))
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
