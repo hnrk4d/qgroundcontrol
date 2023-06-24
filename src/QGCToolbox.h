@@ -35,6 +35,7 @@ class SettingsManager;
 class AirspaceManager;
 class ADSBVehicleManager;
 class NTRIP;
+class DSMFile;
 #if defined(QGC_ENABLE_PAIRING)
 class PairingManager;
 #endif
@@ -71,6 +72,7 @@ public:
     AirspaceManager*            airspaceManager         () { return _airspaceManager; }
     ADSBVehicleManager*         adsbVehicleManager      () { return _adsbVehicleManager; }
     NTRIP*                      ntrip                   () { return _ntrip; }
+    DSMFile*                    dsmFile                 () { return _dsmFile; }
 #if defined(QGC_ENABLE_PAIRING)
     PairingManager*             pairingManager          () { return _pairingManager; }
 #endif
@@ -112,6 +114,7 @@ private:
     AirspaceManager*            _airspaceManager        = nullptr;
     ADSBVehicleManager*         _adsbVehicleManager     = nullptr;
     NTRIP*                      _ntrip                  = nullptr;
+    DSMFile*                    _dsmFile                = nullptr;
 #if defined(QGC_ENABLE_PAIRING)
     PairingManager*             _pairingManager         = nullptr;
 #endif
