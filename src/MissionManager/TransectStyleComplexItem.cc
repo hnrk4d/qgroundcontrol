@@ -600,6 +600,11 @@ void TransectStyleComplexItem::_reallyQueryTransectsPathHeightInfo(void)
         _currentTerrainAtCoordinateQuery = nullptr;
     }
 
+    if(_currentDSMFileCoordQuery) {
+        disconnect(_currentDSMFileCoordQuery);
+        _currentDSMFileCoordQuery = 0;
+    }
+
     // Append all transects into a single PolyPath query
     QList<QGeoCoordinate> transectPoints;
     for (const QList<CoordInfo_t>& transect: _transects) {
@@ -622,10 +627,15 @@ void TransectStyleComplexItem::_queryMissionItemCoordHeights(void)
     _rgFlyThroughMissionItemCoords.clear();
 
     if (_currentTerrainAtCoordinateQuery) {
-        qCWarning(TransectStyleComplexItemLog) << "Internal error: _queryMissionItemCoordHeights called multiple times";
+        qCWarning(TransectStyleComplexItemLog) << "Internal error: _queryMissionItemCoordHeights called multiple times (1)";
         // We are already waiting on another query. We don't care about those results any more.
         disconnect(_currentTerrainPolyPathQuery);
         _currentTerrainPolyPathQuery = nullptr;
+    }
+    if (_currentDSMFileCoordQuery) {
+        qCWarning(TransectStyleComplexItemLog) << "Internal error: _queryMissionItemCoordHeights called multiple times (2)";
+        disconnect(_currentDSMFileCoordQuery);
+        _currentDSMFileCoordQuery = 0;
     }
 
     // We need terrain heights below each mission item we fly through which is terrain frame
@@ -640,9 +650,17 @@ void TransectStyleComplexItem::_queryMissionItemCoordHeights(void)
     }
 
     if (_rgFlyThroughMissionItemCoords.count()) {
-        _currentTerrainAtCoordinateQuery = new TerrainAtCoordinateQuery(true /* autoDelete */);
-        connect(_currentTerrainAtCoordinateQuery, &TerrainAtCoordinateQuery::terrainDataReceived, this, &TransectStyleComplexItem::_missionItemCoordTerrainData);
-        _currentTerrainAtCoordinateQuery->requestData(_rgFlyThroughMissionItemCoords);
+        if(_useDMSFileForTerrainQueries()) {
+            _currentDSMFileCoordQuery = new DSMFileCoordRequest(_rgFlyThroughMissionItemCoords);
+            connect(_currentDSMFileCoordQuery, &DSMFileCoordRequest::terrainDataReady, this, &TransectStyleComplexItem::_missionItemCoordTerrainData);
+            connect(_currentDSMFileCoordQuery, &DSMFileCoordRequest::finished, _currentDSMFileCoordQuery, &QObject::deleteLater);
+            _currentDSMFileCoordQuery->start();
+        }
+        else {
+            _currentTerrainAtCoordinateQuery = new TerrainAtCoordinateQuery(true /* autoDelete */);
+            connect(_currentTerrainAtCoordinateQuery, &TerrainAtCoordinateQuery::terrainDataReceived, this, &TransectStyleComplexItem::_missionItemCoordTerrainData);
+            _currentTerrainAtCoordinateQuery->requestData(_rgFlyThroughMissionItemCoords);
+        }
     }
 }
 
@@ -1498,4 +1516,8 @@ double TransectStyleComplexItem::maxAMSLAltitude(void) const
     } else {
         return _cameraCalc.distanceToSurface()->rawValue().toDouble() + (_cameraCalc.distanceMode() == QGroundControlQmlGlobal::AltitudeModeRelative ? _missionController->plannedHomePosition().altitude() : 0);
     }
+}
+
+bool TransectStyleComplexItem::_useDMSFileForTerrainQueries() {
+    return qgcApp()->toolbox()->dsmFile() && qgcApp()->toolbox()->dsmFile()->isOpen();
 }

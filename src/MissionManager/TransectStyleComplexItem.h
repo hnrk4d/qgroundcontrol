@@ -17,6 +17,7 @@
 #include "QGCMapPolygon.h"
 #include "CameraCalc.h"
 #include "TerrainQuery.h"
+#include "DSMFile.h"
 
 Q_DECLARE_LOGGING_CATEGORY(TransectStyleComplexItemLog)
 
@@ -250,7 +251,10 @@ private:
 
     TerrainPolyPathQuery*       _currentTerrainPolyPathQuery        = nullptr;
     TerrainAtCoordinateQuery*   _currentTerrainAtCoordinateQuery    = nullptr;
+    DSMFileCoordRequest*        _currentDSMFileCoordQuery =0;
     QTimer                      _terrainPolyPathQueryTimer;
+
+    bool _useDMSFileForTerrainQueries();
 
     // Deprecated json keys
     static const char* _jsonTerrainFollowKeyDeprecated;
