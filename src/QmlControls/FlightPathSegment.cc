@@ -9,6 +9,7 @@
 
 #include "FlightPathSegment.h"
 #include "QGC.h"
+#include "QGCApplication.h"
 
 QGC_LOGGING_CATEGORY(FlightPathSegmentLog, "FlightPathSegmentLog")
 
@@ -22,13 +23,12 @@ FlightPathSegment::FlightPathSegment(SegmentType segmentType, const QGeoCoordina
     , _segmentType      (segmentType)
 {
     _delayedTerrainPathQueryTimer.setSingleShot(true);
-    _delayedTerrainPathQueryTimer.setInterval(200);
+    _delayedTerrainPathQueryTimer.setInterval(400);
     _delayedTerrainPathQueryTimer.callOnTimeout(this, &FlightPathSegment::_sendTerrainPathQuery);
+    _delayedTerrainPathQueryTimer.start(400);
     _updateTotalDistance();
 
     qCDebug(FlightPathSegmentLog) << this << "new" << coord1 << coord2 << amslCoord1Alt << amslCoord2Alt << _totalDistance;
-
-    _sendTerrainPathQuery();
 }
 
 void FlightPathSegment::setCoordinate1(const QGeoCoordinate &coordinate)
@@ -87,6 +87,10 @@ void FlightPathSegment::_sendTerrainPathQuery(void)
             disconnect(_currentTerrainPathQuery, &TerrainPathQuery::terrainDataReceived, this, &FlightPathSegment::_terrainDataReceived);
             _currentTerrainPathQuery = nullptr;
         }
+        if (_currentDSMFilePathQuery) {
+            disconnect(_currentDSMFilePathQuery);
+            _currentDSMFilePathQuery = 0;
+        }
 
         // Clear old terrain data
         _amslTerrainHeights.clear();
@@ -96,9 +100,18 @@ void FlightPathSegment::_sendTerrainPathQuery(void)
         emit finalDistanceBetweenChanged(0);
         emit amslTerrainHeightsChanged();
 
-        _currentTerrainPathQuery = new TerrainPathQuery(true /* autoDelete */);
-        connect(_currentTerrainPathQuery, &TerrainPathQuery::terrainDataReceived, this, &FlightPathSegment::_terrainDataReceived);
-        _currentTerrainPathQuery->requestData(_coord1, _coord2);
+        if(_useDMSFileForTerrainQueries()) {
+            _currentDSMFilePathQuery = new DSMFilePathRequest(_coord1, _coord2);
+            connect(_currentDSMFilePathQuery, &DSMFilePathRequest::terrainDataReady, this, &FlightPathSegment::_terrainDataReceived);
+            connect(_currentDSMFilePathQuery, &DSMFilePathRequest::finished, _currentDSMFilePathQuery, &QObject::deleteLater);
+            _currentDSMFilePathQuery->start();
+            qCWarning(FlightPathSegmentLog) << "DSM file requested for terrain (3)";
+        }
+        else {
+            _currentTerrainPathQuery = new TerrainPathQuery(true /* autoDelete */);
+            connect(_currentTerrainPathQuery, &TerrainPathQuery::terrainDataReceived, this, &FlightPathSegment::_terrainDataReceived);
+            _currentTerrainPathQuery->requestData(_coord1, _coord2);
+        }
     }
 }
 
@@ -122,8 +135,8 @@ void FlightPathSegment::_terrainDataReceived(bool success, const TerrainPathQuer
         emit amslTerrainHeightsChanged();
     }
 
-    _currentTerrainPathQuery->deleteLater();
     _currentTerrainPathQuery = nullptr;
+    _currentDSMFilePathQuery = nullptr;
 
     _updateTerrainCollision();
 }
@@ -180,4 +193,8 @@ void FlightPathSegment::_updateTerrainCollision(void)
         _terrainCollision = newTerrainCollision;
         emit terrainCollisionChanged(_terrainCollision);
     }
+}
+
+bool FlightPathSegment::_useDMSFileForTerrainQueries() {
+    return qgcApp()->toolbox()->dsmFile() && qgcApp()->toolbox()->dsmFile()->isOpen();
 }

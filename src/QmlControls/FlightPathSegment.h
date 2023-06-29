@@ -14,6 +14,7 @@
 #include <QTimer>
 
 #include "TerrainQuery.h"
+#include "DSMFile.h"
 #include "QGCLoggingCategory.h"
 
 Q_DECLARE_LOGGING_CATEGORY(FlightPathSegmentLog)
@@ -94,6 +95,7 @@ private:
     bool                _specialVisual =                false;
     QTimer              _delayedTerrainPathQueryTimer;
     TerrainPathQuery*   _currentTerrainPathQuery =      nullptr;
+    DSMFilePathRequest* _currentDSMFilePathQuery =      nullptr;
     QVariantList        _amslTerrainHeights;
     double              _distanceBetween =              0;
     double              _finalDistanceBetween =         0;
@@ -101,4 +103,6 @@ private:
     SegmentType         _segmentType =                  SegmentTypeGeneric;
 
     static constexpr double _collisionIgnoreMeters =    10; // Distance to ignore for takeoff/land segments
+
+    bool _useDMSFileForTerrainQueries();
 };

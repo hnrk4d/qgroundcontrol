@@ -15,6 +15,7 @@
 #include "QGCApplication.h"
 #include "JsonHelper.h"
 #include "TerrainQuery.h"
+#include "DSMFile.h"
 #include "TakeoffMissionItem.h"
 #include "PlanMasterController.h"
 #include "QGC.h"
@@ -200,11 +201,23 @@ void VisualMissionItem::_reallyUpdateTerrainAltitude(void)
             disconnect(_currentTerrainAtCoordinateQuery, &TerrainAtCoordinateQuery::terrainDataReceived, this, &VisualMissionItem::_terrainDataReceived);
             _currentTerrainAtCoordinateQuery = nullptr;
         }
-        _currentTerrainAtCoordinateQuery = new TerrainAtCoordinateQuery(true /* autoDelet */);
-        connect(_currentTerrainAtCoordinateQuery, &TerrainAtCoordinateQuery::terrainDataReceived, this, &VisualMissionItem::_terrainDataReceived);
+        if(_currentDSMFileCoordinateQuery) {
+            disconnect(_currentDSMFileCoordinateQuery);
+            _currentDSMFileCoordinateQuery = 0;
+        }
         QList<QGeoCoordinate> rgCoord;
         rgCoord.append(coordinate());
-        _currentTerrainAtCoordinateQuery->requestData(rgCoord);
+        if(_useDMSFileForTerrainQueries()) {
+            _currentDSMFileCoordinateQuery = new DSMFileCoordRequest(rgCoord);
+            connect(_currentDSMFileCoordinateQuery, &DSMFileCoordRequest::terrainDataReady, this, &VisualMissionItem::_terrainDataReceived);
+            connect(_currentDSMFileCoordinateQuery, &DSMFileCoordRequest::finished, _currentDSMFileCoordinateQuery, &QObject::deleteLater);
+            _currentDSMFileCoordinateQuery->start();
+        }
+        else {
+            _currentTerrainAtCoordinateQuery = new TerrainAtCoordinateQuery(true /* autoDelet */);
+            connect(_currentTerrainAtCoordinateQuery, &TerrainAtCoordinateQuery::terrainDataReceived, this, &VisualMissionItem::_terrainDataReceived);
+            _currentTerrainAtCoordinateQuery->requestData(rgCoord);
+        }
     }
 }
 
@@ -212,7 +225,9 @@ void VisualMissionItem::_terrainDataReceived(bool success, QList<double> heights
 {
     _terrainAltitude = success ? heights[0] : qQNaN();
     emit terrainAltitudeChanged(_terrainAltitude);
+
     _currentTerrainAtCoordinateQuery = nullptr;
+    _currentDSMFileCoordinateQuery = 0;
 }
 
 void VisualMissionItem::_setBoundingCube(QGCGeoBoundingCube bc)
@@ -247,4 +262,8 @@ void VisualMissionItem::_amslEntryAltChanged(void)
 void VisualMissionItem::_amslExitAltChanged(void)
 {
     emit amslExitAltChanged(amslExitAlt());
+}
+
+bool VisualMissionItem::_useDMSFileForTerrainQueries() {
+    return qgcApp()->toolbox()->dsmFile() && qgcApp()->toolbox()->dsmFile()->isOpen();
 }

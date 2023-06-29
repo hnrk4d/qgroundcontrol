@@ -604,6 +604,10 @@ void TransectStyleComplexItem::_reallyQueryTransectsPathHeightInfo(void)
         disconnect(_currentDSMFileCoordQuery);
         _currentDSMFileCoordQuery = 0;
     }
+    if(_currentDSMFilePolyPathQuery) {
+        disconnect(_currentDSMFilePolyPathQuery);
+        _currentDSMFilePolyPathQuery = 0;
+    }
 
     // Append all transects into a single PolyPath query
     QList<QGeoCoordinate> transectPoints;
@@ -614,9 +618,18 @@ void TransectStyleComplexItem::_reallyQueryTransectsPathHeightInfo(void)
     }
 
     if (transectPoints.count() > 1) {
-        _currentTerrainPolyPathQuery = new TerrainPolyPathQuery(true /* autoDelete */);
-        connect(_currentTerrainPolyPathQuery, &TerrainPolyPathQuery::terrainDataReceived, this, &TransectStyleComplexItem::_polyPathTerrainData);
-        _currentTerrainPolyPathQuery->requestData(transectPoints);
+        if(_useDMSFileForTerrainQueries()) {
+            _currentDSMFilePolyPathQuery = new DSMFilePolyPathRequest(transectPoints);
+            connect(_currentDSMFilePolyPathQuery, &DSMFilePolyPathRequest::terrainDataReady, this, &TransectStyleComplexItem::_polyPathTerrainData);
+            connect(_currentDSMFilePolyPathQuery, &DSMFilePolyPathRequest::finished, _currentDSMFilePolyPathQuery, &QObject::deleteLater);
+            _currentDSMFilePolyPathQuery->start();
+            qCWarning(TransectStyleComplexItemLog) << "DSM file requested for terrain (1)";
+        }
+        else {
+            _currentTerrainPolyPathQuery = new TerrainPolyPathQuery(true /* autoDelete */);
+            connect(_currentTerrainPolyPathQuery, &TerrainPolyPathQuery::terrainDataReceived, this, &TransectStyleComplexItem::_polyPathTerrainData);
+            _currentTerrainPolyPathQuery->requestData(transectPoints);
+        }
     }
 }
 
@@ -629,8 +642,8 @@ void TransectStyleComplexItem::_queryMissionItemCoordHeights(void)
     if (_currentTerrainAtCoordinateQuery) {
         qCWarning(TransectStyleComplexItemLog) << "Internal error: _queryMissionItemCoordHeights called multiple times (1)";
         // We are already waiting on another query. We don't care about those results any more.
-        disconnect(_currentTerrainPolyPathQuery);
-        _currentTerrainPolyPathQuery = nullptr;
+        disconnect(_currentTerrainAtCoordinateQuery);
+        _currentTerrainAtCoordinateQuery = nullptr;
     }
     if (_currentDSMFileCoordQuery) {
         qCWarning(TransectStyleComplexItemLog) << "Internal error: _queryMissionItemCoordHeights called multiple times (2)";
@@ -655,6 +668,7 @@ void TransectStyleComplexItem::_queryMissionItemCoordHeights(void)
             connect(_currentDSMFileCoordQuery, &DSMFileCoordRequest::terrainDataReady, this, &TransectStyleComplexItem::_missionItemCoordTerrainData);
             connect(_currentDSMFileCoordQuery, &DSMFileCoordRequest::finished, _currentDSMFileCoordQuery, &QObject::deleteLater);
             _currentDSMFileCoordQuery->start();
+            qCWarning(TransectStyleComplexItemLog) << "DSM file requested for terrain (2)";
         }
         else {
             _currentTerrainAtCoordinateQuery = new TerrainAtCoordinateQuery(true /* autoDelete */);
@@ -678,6 +692,7 @@ void TransectStyleComplexItem::_polyPathTerrainData(bool success, const QList<Te
         emit readyForSaveStateChanged();
     }
     _currentTerrainPolyPathQuery = nullptr;
+    _currentDSMFilePolyPathQuery = nullptr;
 }
 
 void TransectStyleComplexItem::_missionItemCoordTerrainData(bool success, QList<double> heights)
@@ -694,6 +709,7 @@ void TransectStyleComplexItem::_missionItemCoordTerrainData(bool success, QList<
         emit readyForSaveStateChanged();
     }
     _currentTerrainPolyPathQuery = nullptr;
+    _currentDSMFilePolyPathQuery = nullptr;
 }
 
 TransectStyleComplexItem::ReadyForSaveState TransectStyleComplexItem::readyForSaveState(void) const

@@ -252,6 +252,7 @@ private:
     TerrainPolyPathQuery*       _currentTerrainPolyPathQuery        = nullptr;
     TerrainAtCoordinateQuery*   _currentTerrainAtCoordinateQuery    = nullptr;
     DSMFileCoordRequest*        _currentDSMFileCoordQuery =0;
+    DSMFilePolyPathRequest*     _currentDSMFilePolyPathQuery =0;
     QTimer                      _terrainPolyPathQueryTimer;
 
     bool _useDMSFileForTerrainQueries();

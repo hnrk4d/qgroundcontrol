@@ -29,6 +29,7 @@ class MissionItem;
 class PlanMasterController;
 class MissionController;
 class TerrainAtCoordinateQuery;
+class DSMFileCoordRequest;
 
 // Abstract base class for all Simple and Complex visual mission objects.
 class VisualMissionItem : public QObject
@@ -294,7 +295,10 @@ private:
 
     QTimer                      _updateTerrainTimer;
     TerrainAtCoordinateQuery*   _currentTerrainAtCoordinateQuery = nullptr;
+    DSMFileCoordRequest*        _currentDSMFileCoordinateQuery = 0;
 
     double _lastLatTerrainQuery = 0;
     double _lastLonTerrainQuery = 0;
+
+    bool _useDMSFileForTerrainQueries();
 };
