@@ -688,6 +688,7 @@ void TransectStyleComplexItem::_polyPathTerrainData(bool success, const QList<Te
     if (success) {
         // Now that we have terrain data we can adjust
         _rgPathHeightInfo = rgPathHeightInfo;
+
         _adjustForAvailableTerrainData();
         emit readyForSaveStateChanged();
     }

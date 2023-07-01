@@ -480,6 +480,7 @@ Rectangle {
                                     onEditingFinished: {
                                         if(text === "") {
                                             _dsmFilePath.rawValue = text
+                                            DSMFileController.close();
                                         }
                                         else if(DSMFileController.open(text)) {
                                             _dsmFilePath.rawValue = text
