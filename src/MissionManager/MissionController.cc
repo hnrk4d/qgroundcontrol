@@ -26,7 +26,6 @@
 #include "SettingsManager.h"
 #include "AppSettings.h"
 #include "MissionSettingsItem.h"
-#include "QGCQGeoCoordinate.h"
 #include "PlanMasterController.h"
 #include "KMLPlanDomDocument.h"
 #include "QGCCorePlugin.h"
@@ -1406,6 +1405,7 @@ void MissionController::_recalcFlightPathSegments(void)
         }
         FlightPathSegment* segment = _addFlightPathSegment(oldSegmentTable, lastSegmentVisualItemPair, false /* mavlinkTerrainFrame */);
         segment->setSpecialVisual(roiActive);
+        segment->setRTL(true);
         lastFlyThroughVI->setSimpleFlighPathSegment(segment);
     }
 

@@ -60,6 +60,8 @@ public:
     SegmentType         segmentType         (void) const { return _segmentType; }
 
     void setSpecialVisual(bool specialVisual);
+    void setRTL(bool val) {_isRTL = val;}
+    bool isRTL() {return _isRTL;}
 
 public slots:
     void setCoordinate1     (const QGeoCoordinate& coordinate);
@@ -105,4 +107,5 @@ private:
     static constexpr double _collisionIgnoreMeters =    10; // Distance to ignore for takeoff/land segments
 
     bool _useDMSFileForTerrainQueries();
+    bool _isRTL = false; //remember if the segment is a Return-To-Launch segment, then the terrain collision will be ignored
 };

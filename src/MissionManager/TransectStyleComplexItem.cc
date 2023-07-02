@@ -623,7 +623,7 @@ void TransectStyleComplexItem::_reallyQueryTransectsPathHeightInfo(void)
             connect(_currentDSMFilePolyPathQuery, &DSMFilePolyPathRequest::terrainDataReady, this, &TransectStyleComplexItem::_polyPathTerrainData);
             connect(_currentDSMFilePolyPathQuery, &DSMFilePolyPathRequest::finished, _currentDSMFilePolyPathQuery, &QObject::deleteLater);
             _currentDSMFilePolyPathQuery->start();
-            qCWarning(TransectStyleComplexItemLog) << "DSM file requested for terrain (1)";
+            qDebug(TransectStyleComplexItemLog) << "DSM file requested for terrain (1)";
         }
         else {
             _currentTerrainPolyPathQuery = new TerrainPolyPathQuery(true /* autoDelete */);
@@ -668,7 +668,7 @@ void TransectStyleComplexItem::_queryMissionItemCoordHeights(void)
             connect(_currentDSMFileCoordQuery, &DSMFileCoordRequest::terrainDataReady, this, &TransectStyleComplexItem::_missionItemCoordTerrainData);
             connect(_currentDSMFileCoordQuery, &DSMFileCoordRequest::finished, _currentDSMFileCoordQuery, &QObject::deleteLater);
             _currentDSMFileCoordQuery->start();
-            qCWarning(TransectStyleComplexItemLog) << "DSM file requested for terrain (2)";
+            qCDebug(TransectStyleComplexItemLog) << "DSM file requested for terrain (2)";
         }
         else {
             _currentTerrainAtCoordinateQuery = new TerrainAtCoordinateQuery(true /* autoDelete */);

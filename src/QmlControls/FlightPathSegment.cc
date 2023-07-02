@@ -105,7 +105,7 @@ void FlightPathSegment::_sendTerrainPathQuery(void)
             connect(_currentDSMFilePathQuery, &DSMFilePathRequest::terrainDataReady, this, &FlightPathSegment::_terrainDataReceived);
             connect(_currentDSMFilePathQuery, &DSMFilePathRequest::finished, _currentDSMFilePathQuery, &QObject::deleteLater);
             _currentDSMFilePathQuery->start();
-            qCWarning(FlightPathSegmentLog) << "DSM file requested for terrain (3)";
+            qCDebug(FlightPathSegmentLog) << "DSM file requested for terrain (3)";
         }
         else {
             _currentTerrainPathQuery = new TerrainPathQuery(true /* autoDelete */);
@@ -168,6 +168,10 @@ void FlightPathSegment::_updateTerrainCollision(void)
             if (_segmentType == SegmentTypeTakeoff && x < _collisionIgnoreMeters) {
                 ignoreCollision = true;
             } else if (_segmentType == SegmentTypeLand && x > _totalDistance - _collisionIgnoreMeters) {
+                ignoreCollision = true;
+            }
+            if(_isRTL) {
+                //ignore collision for Return-To-Launch since there is a taxi at constant height
                 ignoreCollision = true;
             }
 
