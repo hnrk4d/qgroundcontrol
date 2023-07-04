@@ -14,6 +14,7 @@
 #include "SettingsManager.h"
 #include "PositionManager.h"
 #include "NTRIPSettings.h"
+#include "ParameterManager.h"
 
 #include <QDebug>
 
@@ -121,7 +122,6 @@ void NTRIPTCPLink::_disconnectTcpSocket() {
 }
 
 void NTRIPTCPLink::run(void) {
-    sleep(120); //give drone some time to connect and param transfer
     _socketConnectTimer = new QTimer();
     _socketConnectTimer->setInterval(5000);
     _socketConnectTimer->setSingleShot(false);
@@ -207,8 +207,13 @@ void NTRIPTCPLink::_parse(const QByteArray &buffer)
             //uint16_t id = _rtcm_parsing->messageId();
             uint16_t id = ((uint8_t)message[3] << 4) | ((uint8_t)message[4] >> 4);
             if(_whitelist.empty() || _whitelist.contains(id)) {
-                emit RTCMDataUpdate(message);
-                qCDebug(NTRIPLog) << "Sending " << id << "of size " << message.length();
+                if(qgcApp()->toolbox()->multiVehicleManager()->activeVehicle() &&
+                    qgcApp()->toolbox()->multiVehicleManager()->activeVehicle()->parameterManager()->parametersReady()) {
+                    emit RTCMDataUpdate(message);
+                    qCDebug(NTRIPLog) << "Sending " << id << "of size " << message.length();
+                } else {
+                    qCDebug(NTRIPLog) << "Ignoring " << id << " vehicle not ready or vehicle parameter download not yet ready";
+                }
             } else {
                 qCDebug(NTRIPLog) << "Ignoring " << id;
             }

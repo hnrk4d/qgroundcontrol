@@ -301,7 +301,6 @@ void MultiVehicleManager::_setActiveVehiclePhase2(void)
     if (_activeVehicle) {
         _activeVehicleAvailable = true;
         emit activeVehicleAvailableChanged(true);
-
         if (_activeVehicle->parameterManager()->parametersReady()) {
             _parameterReadyVehicleAvailable = true;
             emit parameterReadyVehicleAvailableChanged(true);
