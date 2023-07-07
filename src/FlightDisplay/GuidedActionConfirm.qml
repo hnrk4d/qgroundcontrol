@@ -23,6 +23,7 @@ Rectangle {
     radius:     ScreenTools.defaultFontPixelWidth / 2
     color:      qgcPal.window
     visible:    false
+    anchors.topMargin: ScreenTools.defaultFontPixelHeight * 3
 
     property var    guidedController
     property var    guidedValueSlider
