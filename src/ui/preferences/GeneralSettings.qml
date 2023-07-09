@@ -33,6 +33,9 @@ Rectangle {
     anchors.margins:    ScreenTools.defaultFontPixelWidth
 
     property Fact _dsmFilePath:                         QGroundControl.settingsManager.appSettings.dsmFilePath
+    property Fact _tankSize:                            QGroundControl.settingsManager.appSettings.tankSize
+    property Fact _tankAction:                          QGroundControl.settingsManager.appSettings.tankAction
+    property Fact _tankEmptyWarning:                    QGroundControl.settingsManager.appSettings.tankEmptyWarning
     property Fact _savePath:                            QGroundControl.settingsManager.appSettings.savePath
     property Fact _appFontPointSize:                    QGroundControl.settingsManager.appSettings.appFontPointSize
     property Fact _userBrandImageIndoor:                QGroundControl.settingsManager.brandImageSettings.userBrandImageIndoor
@@ -293,17 +296,56 @@ Rectangle {
                                     visible:                fact.visible
                                     fact:                  _flyViewSettings.maxGoToLocationDistance
                                 }
-                            }
 
-                            GridLayout {
-                                id:         videoGrid
-                                columns:    2
-                                visible:    _videoSettings.visible
+                                //-----------------------------------------------------------------
+                                //-- FLKTR: Tank size
+                                QGCLabel {
+                                    text:               qsTr("Tank Settings")
+                                    Layout.columnSpan:  2
+                                    Layout.alignment:   Qt.AlignHCenter
+                                }
+
+                                QGCLabel {
+                                    id:         tankSizeLabel
+                                    text:       qsTr("Tank size")
+                                    visible:    _tankSize.visible
+                                }
+                                FactComboBox {
+                                    Layout.preferredWidth:  _comboFieldWidth
+                                    fact:                   _tankSize
+                                    indexModel:             false
+                                    visible:                tankSizeLabel.visible
+                                }
+
+                                QGCLabel {
+                                    id:         tankAction
+                                    text:       qsTr("Action")
+                                    visible:    _tankAction.visible
+                                }
+                                FactComboBox {
+                                    Layout.preferredWidth:  _comboFieldWidth
+                                    fact:                   _tankAction
+                                    indexModel:             yes
+                                    visible:                tankAction.visible
+                                }
+
+                                QGCLabel {
+                                    id:         tankEmptyWarningLabel
+                                    text:       qsTr("Warning tolerance")
+                                    visible:    _tankEmptyWarning.visible
+                                }
+                                FactComboBox {
+                                    Layout.preferredWidth:  _comboFieldWidth
+                                    fact:                   _tankEmptyWarning
+                                    indexModel:             false
+                                    visible:                tankEmptyWarningLabel.visible
+                                }
 
                                 QGCLabel {
                                     text:               qsTr("Video Settings")
                                     Layout.columnSpan:  2
                                     Layout.alignment:   Qt.AlignHCenter
+                                    visible:    _videoSettings.visible
                                 }
 
                                 QGCLabel {
@@ -329,7 +371,6 @@ Rectangle {
                                     fact:                   _videoSettings.udpPort
                                     visible:                udpPortLabel.visible
                                 }
-
                                 QGCLabel {
                                     id:         rtspUrlLabel
                                     text:       qsTr("RTSP URL")
@@ -451,7 +492,7 @@ Rectangle {
                                     fact:                   QGroundControl.settingsManager.appSettings.defaultMissionItemAltitude
                                 }
 
-                                QGCLabel { text: qsTr("VTOL TransitionDistance") }
+                                QGCLabel { text: qsTr("VTOL Transition Distance") }
                                 FactTextField {
                                     fact:                   QGroundControl.settingsManager.planViewSettings.vtolTransitionDistance
                                 }

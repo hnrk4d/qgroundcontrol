@@ -129,6 +129,9 @@ DECLARE_SETTINGSFACT(AppSettings, appFontPointSize)
 DECLARE_SETTINGSFACT(AppSettings, showLargeCompass)
 DECLARE_SETTINGSFACT(AppSettings, savePath)
 DECLARE_SETTINGSFACT(AppSettings, dsmFilePath) //FLKTR
+DECLARE_SETTINGSFACT(AppSettings, tankSize) //FLKTR
+DECLARE_SETTINGSFACT(AppSettings, tankAction) //FLKTR
+DECLARE_SETTINGSFACT(AppSettings, tankEmptyWarning) //FLKTR
 DECLARE_SETTINGSFACT(AppSettings, useChecklist)
 DECLARE_SETTINGSFACT(AppSettings, enforceChecklist)
 DECLARE_SETTINGSFACT(AppSettings, mapboxToken)

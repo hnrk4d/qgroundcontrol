@@ -45,6 +45,9 @@ public:
     DEFINE_SETTINGFACT(showLargeCompass)
     DEFINE_SETTINGFACT(savePath)
     DEFINE_SETTINGFACT(dsmFilePath) //FLKTR
+    DEFINE_SETTINGFACT(tankSize) //FLKTR
+    DEFINE_SETTINGFACT(tankAction) //FLKTR
+    DEFINE_SETTINGFACT(tankEmptyWarning) //FLKTR
     DEFINE_SETTINGFACT(useChecklist)
     DEFINE_SETTINGFACT(enforceChecklist)
     DEFINE_SETTINGFACT(mapboxToken)

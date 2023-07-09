@@ -1758,6 +1758,7 @@ void MissionController::_recalcMissionFlightStatus()
     emit missionDistanceChanged         (_missionFlightStatus.totalDistance);
     emit missionHoverDistanceChanged    (_missionFlightStatus.hoverDistance);
     emit missionCruiseDistanceChanged   (_missionFlightStatus.cruiseDistance);
+    qDebug() << "CRUISE DISTANCE CHANGED" << _missionFlightStatus.cruiseDistance;  //FLKTR
     emit missionTimeChanged             ();
     emit missionHoverTimeChanged        ();
     emit missionCruiseTimeChanged       ();

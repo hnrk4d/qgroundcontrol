@@ -332,6 +332,36 @@
     "longDesc":  "Select the file to provide the DSM data for terrain data",
     "type":       "string",
     "default":     ""
+},
+{
+    "name":             "tankSize",
+    "shortDesc":        "What tank volume will be used?",
+    "longDesc":         "Specify the tank volume so that the software can inform the user about required tank refillments.",
+    "type":             "uint32",
+    "enumStrings":      "10 l,16 l,20 l,25 l,30 l,35 l,40 l,50 l",
+    "enumValues":       "10,16,20,25,30,35,40,50",
+    "default":           20,
+    "qgcRebootRequired": false
+},
+{
+    "name":             "tankAction",
+    "shortDesc":        "Specify the action when tank must be refilled",
+    "longDesc":         "The system can trigger action when the tank will be empty. Please specify what to do.",
+    "type":             "uint32",
+    "enumStrings":      "Disabled,Pause,Return to Home",
+    "enumValues":       "0,1,2",
+    "default":           0,
+    "qgcRebootRequired": false
+},
+{
+    "name":             "tankEmptyWarning",
+    "shortDesc":        "Tank empty tolerance warning",
+    "longDesc":         "Specify when the warning will be triggered.",
+    "type":             "uint32",
+    "enumStrings":      "3 %,5 %,7 %,10 %,15 %,20 %",
+    "enumValues":       "3,5,7,10,15,20",
+    "default":           7,
+    "qgcRebootRequired": false
 }
 ]
 }
