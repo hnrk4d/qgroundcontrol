@@ -327,41 +327,44 @@
     "default":     "localhost:14445"
 },
 {
-    "name":             "dsmFilePath",
-    "shortDesc": "DSM file as terrain provider",
-    "longDesc":  "Select the file to provide the DSM data for terrain data",
+    "name":       "dsmFilePath",
+    "shortDesc":  "DSM file as terrain provider",
+    "longDesc":   "Select the file to provide the DSM data for terrain data",
     "type":       "string",
-    "default":     ""
+    "default":    ""
 },
 {
-    "name":                 "dsmSampleDistance",
+    "name":          "dsmSampleDistance",
     "shortDesc":     "Target distance of altitude samples",
     "longDesc":      "In the planning step, we try to get samples from the DSM file in the given distance.",
-    "type":                 "double",
-    "units":                "m",
-    "min":                  1,
-    "max":                  30,
-    "default":         3.0
+    "type":          "double",
+    "units":         "m",
+    "min":           1,
+    "max":           30,
+    "default":       3.0,
+    "decimalPlaces": 2
 },
 {
-    "name":                 "dsmSampleSize",
+    "name":          "dsmSampleSize",
     "shortDesc":     "Sample size of altitude samples",
     "longDesc":      "We try to get a square area of values from the DSM file in the given dimension. In this plot we determine the maximum altitude.",
-    "type":                 "double",
-    "units":                "m",
-    "min":                  1,
-    "max":                  30,
-    "default":         3.1
+    "type":          "double",
+    "units":         "m",
+    "min":           1,
+    "max":           30,
+    "default":       3.1,
+    "decimalPlaces": 2
 },
 {
-    "name":             "tankSize",
-    "shortDesc":        "What tank volume will be used?",
-    "longDesc":         "Specify the tank volume so that the software can inform the user about required tank refillments.",
-    "type":             "uint32",
-    "enumStrings":      "10 l,16 l,20 l,25 l,30 l,35 l,40 l,50 l",
-    "enumValues":       "10,16,20,25,30,35,40,50",
-    "default":           20,
-    "qgcRebootRequired": false
+    "name":                 "tankSize",
+    "shortDesc":            "What tank volume will be used?",
+    "longDesc":             "Specify the tank volume so that the software can inform the user about required tank refillments.",
+    "type":                 "double",
+    "units":                "l",
+    "min":                  1,
+    "max":                  100,
+    "default":              30,
+    "decimalPlaces":        1
 },
 {
     "name":             "tankAction",
@@ -374,14 +377,15 @@
     "qgcRebootRequired": false
 },
 {
-    "name":             "tankEmptyWarning",
-    "shortDesc":        "Tank empty tolerance warning",
-    "longDesc":         "Specify when the warning will be triggered.",
-    "type":             "uint32",
-    "enumStrings":      "3 %,5 %,7 %,10 %,15 %,20 %",
-    "enumValues":       "3,5,7,10,15,20",
-    "default":           7,
-    "qgcRebootRequired": false
+    "name":                 "tankEmptyWarning",
+    "shortDesc":            "Tank empty tolerance warning",
+    "longDesc":             "Specify when the warning will be triggered.",
+    "type":                 "double",
+    "units":                "%",
+    "min":                  0,
+    "max":                  100,
+    "default":              10,
+    "decimalPlaces":        1
 }
 ]
 }

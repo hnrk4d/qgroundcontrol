@@ -274,6 +274,7 @@ Rectangle {
                                     visible:    guidedMinAltField.visible
                                 }
                                 FactTextField {
+                                    Layout.preferredWidth:  _comboFieldWidth
                                     id:                     guidedMinAltField
                                     visible:                fact.visible
                                     fact:                   _flyViewSettings.guidedMinimumAltitude
@@ -284,6 +285,7 @@ Rectangle {
                                     visible:    guidedMaxAltField.visible
                                 }
                                 FactTextField {
+                                    Layout.preferredWidth:  _comboFieldWidth
                                     id:                     guidedMaxAltField
                                     visible:                fact.visible
                                     fact:                   _flyViewSettings.guidedMaximumAltitude
@@ -294,6 +296,7 @@ Rectangle {
                                     visible:    maxGotoDistanceField.visible
                                 }
                                 FactTextField {
+                                    Layout.preferredWidth:  _comboFieldWidth
                                     id:                     maxGotoDistanceField
                                     visible:                fact.visible
                                     fact:                  _flyViewSettings.maxGoToLocationDistance
@@ -312,11 +315,11 @@ Rectangle {
                                     text:       qsTr("Tank size")
                                     visible:    _tankSize.visible
                                 }
-                                FactComboBox {
+                                FactTextField {
                                     Layout.preferredWidth:  _comboFieldWidth
+                                    id:                     tankSize
+                                    visible:                fact.visible
                                     fact:                   _tankSize
-                                    indexModel:             false
-                                    visible:                tankSizeLabel.visible
                                 }
 
                                 QGCLabel {
@@ -336,11 +339,11 @@ Rectangle {
                                     text:       qsTr("Warning tolerance")
                                     visible:    _tankEmptyWarning.visible
                                 }
-                                FactComboBox {
+                                FactTextField {
                                     Layout.preferredWidth:  _comboFieldWidth
+                                    id:                     tankEmptyWarning
+                                    visible:                fact.visible
                                     fact:                   _tankEmptyWarning
-                                    indexModel:             false
-                                    visible:                tankEmptyWarningLabel.visible
                                 }
 
                                 QGCLabel {
