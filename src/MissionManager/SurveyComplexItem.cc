@@ -673,7 +673,7 @@ double SurveyComplexItem::_turnaroundDistance(void) const
 
 void SurveyComplexItem::_rebuildTransectsPhase1(void)
 {
-    _effectiveDistance=0; //FLKTR
+    _actuatorDistance=0; //FLKTR
     bool split = splitConcavePolygons()->rawValue().toBool();
 	if (split) {
 		_rebuildTransectsPhase1WorkerSplitPolygons(false /* refly */);
@@ -801,7 +801,7 @@ void SurveyComplexItem::_rebuildTransectsPhase1WorkerSinglePolygon(bool refly)
     //FLKTR: recalculate effective Distance
     if(intersectLines.count()) {
         for(const auto &l : intersectLines) {
-            _effectiveDistance += l.length();
+            _actuatorDistance += l.length();
         }
     }
 
@@ -912,7 +912,7 @@ void SurveyComplexItem::_rebuildTransectsPhase1WorkerSinglePolygon(bool refly)
             //FLKTR:
             if(ctita) {
                 // we add 2x turnAroundDistance
-                _effectiveDistance += 2.0 * turnAroundDistance;
+                _actuatorDistance += 2.0 * turnAroundDistance;
             }
         }
         _transects.append(coordInfoTransect);
@@ -924,7 +924,7 @@ void SurveyComplexItem::_rebuildTransectsPhase1WorkerSinglePolygon(bool refly)
             //we add the distance between 2 consecutive CoordTypeTurnaround's
             for(const CoordInfo_t &ci : transect ) {
                 if(c0.coordType == CoordTypeTurnaround && ci.coordType == CoordTypeTurnaround) {
-                    _effectiveDistance += c0.coord.distanceTo(ci.coord);
+                    _actuatorDistance += c0.coord.distanceTo(ci.coord);
                 }
                 c0=ci;
             }

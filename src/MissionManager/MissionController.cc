@@ -31,6 +31,7 @@
 #include "QGCCorePlugin.h"
 #include "TakeoffMissionItem.h"
 #include "PlanViewSettings.h"
+#include "CustomPlugin.h"
 
 #define UPDATE_TIMEOUT 5000 ///< How often we check for bounding box changes
 
@@ -73,6 +74,7 @@ MissionController::MissionController(PlanMasterController* masterController, QOb
     // The follow is used to compress multiple recalc calls in a row to into a single call.
     connect(this, &MissionController::_recalcMissionFlightStatusSignal, this, &MissionController::_recalcMissionFlightStatus,   Qt::QueuedConnection);
     connect(this, &MissionController::_recalcFlightPathSegmentsSignal,  this, &MissionController::_recalcFlightPathSegments,    Qt::QueuedConnection);
+    connect(this, &MissionController::currentMissionItemChanged, static_cast<CustomPlugin*>(qgcApp()->toolbox()->corePlugin()), &CustomPlugin::flightProgress);
     qgcApp()->addCompressedSignal(QMetaMethod::fromSignal(&MissionController::_recalcMissionFlightStatusSignal));
     qgcApp()->addCompressedSignal(QMetaMethod::fromSignal(&MissionController::_recalcFlightPathSegmentsSignal));
     qgcApp()->addCompressedSignal(QMetaMethod::fromSignal(&MissionController::recalcTerrainProfile));
@@ -89,8 +91,10 @@ void MissionController::_resetMissionFlightStatus(void)
     _missionFlightStatus.maxTelemetryDistance = 0.0;
     _missionFlightStatus.totalTime =            0.0;
     _missionFlightStatus.hoverTime =            0.0;
+    _missionFlightStatus.actuatorTime =         0.0;
     _missionFlightStatus.cruiseTime =           0.0;
     _missionFlightStatus.hoverDistance =        0.0;
+    _missionFlightStatus.actuatorDistance =     0.0;
     _missionFlightStatus.cruiseDistance =       0.0;
     _missionFlightStatus.cruiseSpeed =          _controllerVehicle->defaultCruiseSpeed();
     _missionFlightStatus.hoverSpeed =           _controllerVehicle->defaultHoverSpeed();
@@ -1495,29 +1499,46 @@ void MissionController::_addCruiseTime(double cruiseTime, double cruiseDistance,
     _updateBatteryInfo(waypointIndex);
 }
 
+void MissionController::_addActuatorTime(double actuatorTime, double actuatorDistance) {
+    _missionFlightStatus.actuatorTime += actuatorTime;
+    _missionFlightStatus.actuatorDistance += actuatorDistance;
+}
+
 /// Adds the specified time to the appropriate hover or cruise time values.
 ///     @param vtolInHover true: vtol is currrent in hover mode
 ///     @param hoverTime    Amount of time tp add to hover
 ///     @param cruiseTime   Amount of time to add to cruise
 ///     @param extraTime    Amount of additional time to add to hover/cruise
 ///     @param seqNum       Sequence number of waypoint for these values, -1 for no waypoint associated
-void MissionController::_addTimeDistance(bool vtolInHover, double hoverTime, double cruiseTime, double extraTime, double distance, int seqNum)
+void MissionController::_addTimeDistance(bool vtolInHover, bool actuatorIsOn, double hoverTime, double cruiseTime, double extraTime, double distance, int seqNum)
 {
     if (_controllerVehicle->vtol()) {
         if (vtolInHover) {
             _addHoverTime(hoverTime, distance, seqNum);
             _addHoverTime(extraTime, 0, -1);
+            if(actuatorIsOn) {
+                _addActuatorTime(hoverTime, distance);
+            }
         } else {
             _addCruiseTime(cruiseTime, distance, seqNum);
             _addCruiseTime(extraTime, 0, -1);
+            if(actuatorIsOn) {
+                _addActuatorTime(cruiseTime, distance);
+            }
         }
     } else {
         if (_controllerVehicle->multiRotor()) {
             _addHoverTime(hoverTime, distance, seqNum);
             _addHoverTime(extraTime, 0, -1);
+            if(actuatorIsOn) {
+                _addActuatorTime(hoverTime, distance);
+            }
         } else {
             _addCruiseTime(cruiseTime, distance, seqNum);
             _addCruiseTime(extraTime, 0, -1);
+            if(actuatorIsOn) {
+                _addActuatorTime(cruiseTime, distance);
+            }
         }
     }
 }
@@ -1544,6 +1565,8 @@ void MissionController::_recalcMissionFlightStatus()
     lastFlyThroughVI->setAzimuth(0);
     lastFlyThroughVI->setDistance(0);
     lastFlyThroughVI->setDistanceFromStart(0);
+    lastFlyThroughVI->setActuatorDistanceFromStart(0);
+    lastFlyThroughVI->setActuatorTimeFromStart(0);
 
     _minAMSLAltitude = _maxAMSLAltitude = qQNaN();
 
@@ -1552,6 +1575,7 @@ void MissionController::_recalcMissionFlightStatus()
     bool   linkStartToHome =            false;
     bool   foundRTL =                   false;
     double totalHorizontalDistance =    0;
+    bool   actuatorIsOn =               false;
 
     for (int i=0; i<_visualItems->count(); i++) {
         VisualMissionItem*  item =          qobject_cast<VisualMissionItem*>(_visualItems->get(i));
@@ -1566,6 +1590,8 @@ void MissionController::_recalcMissionFlightStatus()
         item->setAzimuth(0);
         item->setDistance(0);
         item->setDistanceFromStart(0);
+        item->setActuatorDistanceFromStart(0);
+        item->setActuatorTimeFromStart(0);
 
         // Gimbal states reflect the state AFTER executing the item
 
@@ -1582,6 +1608,9 @@ void MissionController::_recalcMissionFlightStatus()
                 break;
             }
         }
+
+        //check actuator status
+        actuatorIsOn = CustomPlugin::isActuatorOn(simpleItem);
 
         // Look for specific gimbal changes
         double gimbalYaw = item->specifiedGimbalYaw();
@@ -1615,7 +1644,9 @@ void MissionController::_recalcMissionFlightStatus()
                 }
             }
 
-            _addTimeDistance(_missionFlightStatus.vtolMode == QGCMAVLink::VehicleClassMultiRotor, 0, 0, item->additionalTimeDelay(), 0, -1);
+            _addTimeDistance(_missionFlightStatus.vtolMode == QGCMAVLink::VehicleClassMultiRotor,
+                             actuatorIsOn,
+                             0, 0, item->additionalTimeDelay(), 0, -1);
 
             if (item->specifiesCoordinate()) {
 
@@ -1665,7 +1696,11 @@ void MissionController::_recalcMissionFlightStatus()
                         // Calculate time/distance
                         double hoverTime = distance / _missionFlightStatus.hoverSpeed;
                         double cruiseTime = distance / _missionFlightStatus.cruiseSpeed;
-                        _addTimeDistance(_missionFlightStatus.vtolMode == QGCMAVLink::VehicleClassMultiRotor, hoverTime, cruiseTime, 0, distance, item->sequenceNumber());
+                        _addTimeDistance(_missionFlightStatus.vtolMode == QGCMAVLink::VehicleClassMultiRotor,
+                                         actuatorIsOn,
+                                         hoverTime, cruiseTime, 0, distance, item->sequenceNumber());
+                        item->setActuatorDistanceFromStart(_missionFlightStatus.actuatorDistance);
+                        item->setActuatorTimeFromStart(_missionFlightStatus.actuatorTime);
                     }
 
                     if (complexItem) {
@@ -1675,11 +1710,14 @@ void MissionController::_recalcMissionFlightStatus()
 
                         double hoverTime = distance / _missionFlightStatus.hoverSpeed;
                         double cruiseTime = distance / _missionFlightStatus.cruiseSpeed;
-                        _addTimeDistance(_missionFlightStatus.vtolMode == QGCMAVLink::VehicleClassMultiRotor, hoverTime, cruiseTime, 0, distance, item->sequenceNumber());
+                        _addTimeDistance(_missionFlightStatus.vtolMode == QGCMAVLink::VehicleClassMultiRotor,
+                                         actuatorIsOn,
+                                         hoverTime, cruiseTime, 0, distance, item->sequenceNumber());
 
                         totalHorizontalDistance += distance;
+                        item->setActuatorDistanceFromStart(_missionFlightStatus.actuatorDistance);
+                        item->setActuatorTimeFromStart(_missionFlightStatus.actuatorTime);
                     }
-
 
                     lastFlyThroughVI = item;
                 }
@@ -1741,7 +1779,9 @@ void MissionController::_recalcMissionFlightStatus()
         double hoverTime = distance / _missionFlightStatus.hoverSpeed;
         double cruiseTime = distance / _missionFlightStatus.cruiseSpeed;
         double landTime = qAbs(altDifference) / _appSettings->offlineEditingDescentSpeed()->rawValue().toDouble();
-        _addTimeDistance(_missionFlightStatus.vtolMode == QGCMAVLink::VehicleClassMultiRotor, hoverTime, cruiseTime, distance, landTime, -1);
+        _addTimeDistance(_missionFlightStatus.vtolMode == QGCMAVLink::VehicleClassMultiRotor,
+                         actuatorIsOn,
+                         hoverTime, cruiseTime, distance, landTime, -1);
     }
 
     if (_missionFlightStatus.mAhBattery != 0 && _missionFlightStatus.batteryChangePoint == -1) {
@@ -1758,7 +1798,6 @@ void MissionController::_recalcMissionFlightStatus()
     emit missionDistanceChanged         (_missionFlightStatus.totalDistance);
     emit missionHoverDistanceChanged    (_missionFlightStatus.hoverDistance);
     emit missionCruiseDistanceChanged   (_missionFlightStatus.cruiseDistance);
-    qDebug() << "CRUISE DISTANCE CHANGED" << _missionFlightStatus.cruiseDistance;  //FLKTR
     emit missionTimeChanged             ();
     emit missionHoverTimeChanged        ();
     emit missionCruiseTimeChanged       ();
@@ -2176,6 +2215,7 @@ void MissionController::_currentMissionIndexChanged(int sequenceNumber)
             item->setIsCurrentItem(item->sequenceNumber() == sequenceNumber);
         }
         emit currentMissionIndexChanged(currentMissionIndex());
+        emit currentMissionItemChanged(qobject_cast<VisualMissionItem*>(_visualItems->get(sequenceNumber)));
     }
 }
 

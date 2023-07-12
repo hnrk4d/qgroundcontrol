@@ -97,6 +97,14 @@ public:
     void setDistance        (double distance);
     void setRadius          (double loiterRadius);
 
+    void getParams(double &aP1,
+                   double &aP2,
+                   double &aP3,
+                   double &aP4,
+                   double &aP5,
+                   double &aP6,
+                   double &aP7);
+
     virtual bool load(QTextStream &loadStream);
     virtual bool load(const QJsonObject& json, int sequenceNumber, QString& errorString);
 

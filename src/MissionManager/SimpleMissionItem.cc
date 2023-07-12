@@ -1103,3 +1103,19 @@ void SimpleMissionItem::_possibleRadiusChanged(void)
         emit loiterRadiusChanged(loiterRadius());
     }
 }
+
+void SimpleMissionItem::getParams(double &aP1,
+                                  double &aP2,
+                                  double &aP3,
+                                  double &aP4,
+                                  double &aP5,
+                                  double &aP6,
+                                  double &aP7) {
+    aP1=_missionItem._param1Fact.rawValue().toDouble();
+    aP2=_missionItem._param2Fact.rawValue().toDouble();
+    aP3=_missionItem._param3Fact.rawValue().toDouble();
+    aP4=_missionItem._param4Fact.rawValue().toDouble();
+    aP5=_missionItem._param5Fact.rawValue().toDouble();
+    aP6=_missionItem._param6Fact.rawValue().toDouble();
+    aP7=_missionItem._param7Fact.rawValue().toDouble();
+}

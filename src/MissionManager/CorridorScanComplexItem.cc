@@ -225,7 +225,7 @@ void CorridorScanComplexItem::_rebuildTransectsPhase1(void)
     if (_ignoreRecalc) {
         return;
     }
-    _effectiveDistance=0; //FLKTR
+    _actuatorDistance=0; //FLKTR
     bool ctita = cameraTriggerInTurnAround()->rawValue().toBool(); //FLKTR
 
     // If the transects are getting rebuilt then any previsouly loaded mission items are now invalid
@@ -270,7 +270,7 @@ void CorridorScanComplexItem::_rebuildTransectsPhase1(void)
             //FLKTR
             CoordInfo_t c0=*transect.begin(); //the first added dist is 0!
             for(const auto &t : transect) {
-                _effectiveDistance += c0.coord.distanceTo(t.coord);
+                _actuatorDistance += c0.coord.distanceTo(t.coord);
                 c0 = t;
             }
 
@@ -292,7 +292,7 @@ void CorridorScanComplexItem::_rebuildTransectsPhase1(void)
                 transect.append(coordInfo);
 
                 if(ctita) { //FLKTR
-                    _effectiveDistance += 2.0*turnAroundDistance;
+                    _actuatorDistance += 2.0*turnAroundDistance;
                 }
             }
 
@@ -384,7 +384,7 @@ void CorridorScanComplexItem::_rebuildTransectsPhase1(void)
             //we add the distance between 2 consecutive CoordTypeTurnaround's
             for(const CoordInfo_t &ci : transect ) {
                 if(c0.coordType == CoordTypeTurnaround && ci.coordType == CoordTypeTurnaround) {
-                    _effectiveDistance += c0.coord.distanceTo(ci.coord);
+                    _actuatorDistance += c0.coord.distanceTo(ci.coord);
                 }
                 c0=ci;
             }

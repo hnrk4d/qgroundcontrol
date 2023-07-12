@@ -387,8 +387,8 @@ double TransectStyleComplexItem::coveredArea(void) const
     return _surveyAreaPolygon.area();
 }
 
-double TransectStyleComplexItem::effectiveDistance() const {
-    return _effectiveDistance; //the value is actually recalculated while building the transects
+double TransectStyleComplexItem::actuatorDistance() const {
+    return _actuatorDistance; //the value is actually recalculated while building the transects
 }
 
 bool TransectStyleComplexItem::_hasTurnaround(void) const
@@ -487,7 +487,7 @@ void TransectStyleComplexItem::_rebuildTransects(void)
 
     emit _updateFlightPathSegmentsSignal();
 
-    emit effectiveDistanceChanged(); //FLKTR
+    emit actuatorDistanceChanged(); //FLKTR
 
     _amslEntryAltChanged();
     _amslExitAltChanged();

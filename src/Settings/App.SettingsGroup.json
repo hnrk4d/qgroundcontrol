@@ -334,6 +334,26 @@
     "default":     ""
 },
 {
+    "name":                 "dsmSampleDistance",
+    "shortDesc":     "Target distance of altitude samples",
+    "longDesc":      "In the planning step, we try to get samples from the DSM file in the given distance.",
+    "type":                 "double",
+    "units":                "m",
+    "min":                  1,
+    "max":                  30,
+    "default":         3.0
+},
+{
+    "name":                 "dsmSampleSize",
+    "shortDesc":     "Sample size of altitude samples",
+    "longDesc":      "We try to get a square area of values from the DSM file in the given dimension. In this plot we determine the maximum altitude.",
+    "type":                 "double",
+    "units":                "m",
+    "min":                  1,
+    "max":                  30,
+    "default":         3.1
+},
+{
     "name":             "tankSize",
     "shortDesc":        "What tank volume will be used?",
     "longDesc":         "Specify the tank volume so that the software can inform the user about required tank refillments.",

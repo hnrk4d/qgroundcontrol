@@ -33,6 +33,8 @@ Rectangle {
     anchors.margins:    ScreenTools.defaultFontPixelWidth
 
     property Fact _dsmFilePath:                         QGroundControl.settingsManager.appSettings.dsmFilePath
+    property Fact _dsmSampleDistance:                   QGroundControl.settingsManager.appSettings.dsmSampleDistance
+    property Fact _dsmSampleSize:                       QGroundControl.settingsManager.appSettings.dsmSampleSize
     property Fact _tankSize:                            QGroundControl.settingsManager.appSettings.tankSize
     property Fact _tankAction:                          QGroundControl.settingsManager.appSettings.tankAction
     property Fact _tankEmptyWarning:                    QGroundControl.settingsManager.appSettings.tankEmptyWarning
@@ -325,7 +327,7 @@ Rectangle {
                                 FactComboBox {
                                     Layout.preferredWidth:  _comboFieldWidth
                                     fact:                   _tankAction
-                                    indexModel:             yes
+                                    indexModel:             true
                                     visible:                tankAction.visible
                                 }
 
@@ -510,6 +512,12 @@ Rectangle {
                             }
                             //-----------------------------------------------------------------
                             //-- FLKTR: DSM file access
+                            QGCLabel {
+                                text:               qsTr("Digital Surface Model")
+                                Layout.columnSpan:  2
+                                Layout.alignment:   Qt.AlignHCenter
+                            }
+
                             RowLayout {
                                 visible:            _dsmFilePath.visible
 
@@ -548,6 +556,29 @@ Rectangle {
                                             }
                                         }
                                     }
+                                }
+                            }
+                            GridLayout {
+                                columns:            2
+                                columnSpacing:      ScreenTools.defaultFontPixelWidth
+                                visible:            _dsmFilePath.visible
+                                QGCLabel {
+                                    text:       qsTr("DSM Sample Distance")
+                                    visible:    _dsmSampleDistance.visible
+                                }
+                                FactTextField {
+                                    id:                     dsmSampleDistance
+                                    visible:                fact.visible
+                                    fact:                   _dsmSampleDistance
+                                }
+                                QGCLabel {
+                                    text:       qsTr("DSM Sample Size")
+                                    visible:    _dsmSampleSize.visible
+                                }
+                                FactTextField {
+                                    id:                     dsmSampleSize
+                                    visible:                fact.visible
+                                    fact:                   _dsmSampleSize
                                 }
                             }
                         }

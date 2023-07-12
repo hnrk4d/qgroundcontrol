@@ -56,6 +56,7 @@
 #endif
 #include "Autotune.h"
 #include "RemoteIDManager.h"
+#include "CustomPlugin.h"
 
 #if defined(QGC_AIRMAP_ENABLED)
 #include "AirspaceVehicleManager.h"
@@ -196,6 +197,8 @@ Vehicle::Vehicle(LinkInterface*             link,
     _uas->setParent(this);
 
     connect(this, &Vehicle::remoteControlRSSIChanged,   this, &Vehicle::_remoteControlRSSIChanged);
+
+    connect(this, &Vehicle::flightModeChanged, static_cast<CustomPlugin*>(qgcApp()->toolbox()->corePlugin()), &CustomPlugin::flightModeChanged);
 
     _commonInit();
 

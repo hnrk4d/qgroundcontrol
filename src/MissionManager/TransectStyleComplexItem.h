@@ -40,7 +40,7 @@ public:
     Q_PROPERTY(int              cameraShots                 READ cameraShots                                        NOTIFY cameraShotsChanged)
     Q_PROPERTY(double           timeBetweenShots            READ timeBetweenShots                                   NOTIFY timeBetweenShotsChanged)
     Q_PROPERTY(double           coveredArea                 READ coveredArea                                        NOTIFY coveredAreaChanged)
-    Q_PROPERTY(double           effectiveDistance           READ effectiveDistance                                  NOTIFY effectiveDistanceChanged) //FLKTR: this variable holds the overall distance of the flight with actuator on
+    Q_PROPERTY(double           actuatorDistance            READ actuatorDistance                                  NOTIFY actuatorDistanceChanged) //FLKTR: this variable holds the overall distance of the flight with actuator on
     Q_PROPERTY(double           vehicleSpeed                READ vehicleSpeed                                      NOTIFY vehicleSpeedChanged) //FLKTR
     Q_PROPERTY(bool             hoverAndCaptureAllowed      READ hoverAndCaptureAllowed                             CONSTANT)
     Q_PROPERTY(QVariantList     visualTransectPoints        READ visualTransectPoints                               NOTIFY visualTransectPointsChanged)
@@ -65,7 +65,7 @@ public:
 
     int             cameraShots             (void) const { return _cameraShots; }
     double          coveredArea             (void) const;
-    double          effectiveDistance       (void) const;  //FLKTR
+    double          actuatorDistance       (void) const;  //FLKTR
     double          vehicleSpeed       (void) const {return _vehicleSpeed;}  //FLKTR
     bool            hoverAndCaptureAllowed  (void) const;
 
@@ -102,7 +102,7 @@ public:
     double              specifiedGimbalYaw          (void) final { return std::numeric_limits<double>::quiet_NaN(); }
     double              specifiedGimbalPitch        (void) final { return std::numeric_limits<double>::quiet_NaN(); }
     void                setMissionFlightStatus      (MissionController::MissionFlightStatus_t& missionFlightStatus) final;
-    ReadyForSaveState   readyForSaveState         (void) const override;
+    ReadyForSaveState   readyForSaveState           (void) const override;
     QString             commandDescription          (void) const override { return tr("Transect"); }
     QString             commandName                 (void) const override { return tr("Transect"); }
     QString             abbreviation                (void) const override { return tr("T"); }
@@ -129,7 +129,7 @@ signals:
     void timeBetweenShotsChanged        (void);
     void visualTransectPointsChanged    (void);
     void coveredAreaChanged             (void);
-    void effectiveDistanceChanged       (void); //FLKTR
+    void actuatorDistanceChanged        (void); //FLKTR
     void _updateFlightPathSegmentsSignal(void);
     void vehicleSpeedChanged(); //FLKTR
 
@@ -196,7 +196,7 @@ protected:
     double          _minAMSLAltitude =  qQNaN();
     double          _maxAMSLAltitude =  qQNaN();
 
-    double          _effectiveDistance = 0; //FLKTR
+    double          _actuatorDistance = 0; //FLKTR
 
     QObject*            _loadedMissionItemsParent = nullptr;	///< Parent for all items in _loadedMissionItems for simpler delete
     QList<MissionItem*> _loadedMissionItems;                    ///< Mission items loaded from plan file

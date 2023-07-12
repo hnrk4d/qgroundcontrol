@@ -75,8 +75,7 @@ void MissionManager::writeArduPilotGuidedMissionItem(const QGeoCoordinate& gotoC
     emit inProgressChanged(true);
 }
 
-void MissionManager::generateResumeMission(int resumeIndex)
-{
+void MissionManager::generateResumeMission(int resumeIndex) {
     if (_vehicle->isOfflineEditingVehicle()) {
         return;
     }
@@ -85,6 +84,8 @@ void MissionManager::generateResumeMission(int resumeIndex)
         qCDebug(MissionManagerLog) << "generateResumeMission called while transaction in progress";
         return;
     }
+
+    qDebug() << "RESUME RECALCULATION";
 
     for (int i=0; i<_missionItems.count(); i++) {
         MissionItem* item = _missionItems[i];

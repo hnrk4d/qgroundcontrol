@@ -19,13 +19,13 @@ Grid {
     QGCLabel { text: QGroundControl.unitsConversion.squareMetersToAppSettingsAreaUnits(missionItem.coveredArea).toFixed(2) + " " + QGroundControl.unitsConversion.appSettingsAreaUnitsString }
 
     QGCLabel { text: qsTr("Effective Dist.") } //FLKTR
-    QGCLabel { text: missionItem.effectiveDistance.toFixed(1) + " " + qsTr("m") }
+    QGCLabel { text: missionItem.actuatorDistance.toFixed(1) + " " + qsTr("m") }
 
     //QGCLabel { text: qsTr("Grit") } //FLKTR
     //QGCLabel { text: SpreadingUnitComponentController.libraryEntryWeightedGritName(SpreadingUnitComponentController.currentIndex) }
 
     QGCLabel { text: qsTr("Weight") } //FLKTR
-    QGCLabel { text: ((missionItem.vehicleSpeed>0)?missionItem.effectiveDistance*SpreadingUnitComponentController.libraryEntryWeightedGrit(SpreadingUnitComponentController.currentIndex)/(missionItem.vehicleSpeed*1000):0).toFixed(1) + " " + qsTr("kg") }
+    QGCLabel { text: ((missionItem.vehicleSpeed>0)?missionItem.actuatorDistance*SpreadingUnitComponentController.libraryEntryWeightedGrit(SpreadingUnitComponentController.currentIndex)/(missionItem.vehicleSpeed*1000):0).toFixed(1) + " " + qsTr("kg") }
 
     /* FLKTR
     QGCLabel { text: qsTr("Photo Count") }

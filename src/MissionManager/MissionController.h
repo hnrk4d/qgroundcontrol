@@ -50,6 +50,8 @@ public:
         double                      totalTime;
         double                      hoverDistance;
         double                      hoverTime;
+        double                      actuatorDistance;
+        double                      actuatorTime;
         double                      cruiseDistance;
         double                      cruiseTime;
         int                         mAhBattery;             ///< 0 for not available
@@ -279,6 +281,7 @@ signals:
     void plannedHomePositionChanged         (QGeoCoordinate plannedHomePosition);
     void progressPctChanged                 (double progressPct);
     void currentMissionIndexChanged         (int currentMissionIndex);
+    void currentMissionItemChanged          (VisualMissionItem *item);
     void currentPlanViewSeqNumChanged       (void);
     void currentPlanViewVIIndexChanged      (void);
     void currentPlanViewItemChanged         (void);
@@ -342,11 +345,12 @@ private:
     void                    _resetMissionFlightStatus           (void);
     void                    _addHoverTime                       (double hoverTime, double hoverDistance, int waypointIndex);
     void                    _addCruiseTime                      (double cruiseTime, double cruiseDistance, int wayPointIndex);
+    void                    _addActuatorTime                    (double actuatorTime, double actuatorDistance);
     void                    _updateBatteryInfo                  (int waypointIndex);
     bool                    _loadItemsFromJson                  (const QJsonObject& json, QmlObjectListModel* visualItems, QString& errorString);
     void                    _initLoadedVisualItems              (QmlObjectListModel* loadedVisualItems);
     FlightPathSegment*      _addFlightPathSegment               (FlightPathSegmentHashTable& prevItemPairHashTable, VisualItemPair& pair, bool mavlinkTerrainFrame);
-    void                    _addTimeDistance                    (bool vtolInHover, double hoverTime, double cruiseTime, double extraTime, double distance, int seqNum);
+    void                    _addTimeDistance                    (bool vtolInHover, bool actuatorIsOn, double hoverTime, double cruiseTime, double extraTime, double distance, int seqNum);
     VisualMissionItem*      _insertSimpleMissionItemWorker      (QGeoCoordinate coordinate, MAV_CMD command, int visualItemIndex, bool makeCurrentItem);
     void                    _insertComplexMissionItemWorker     (const QGeoCoordinate& mapCenterCoordinate, ComplexMissionItem* complexItem, int visualItemIndex, bool makeCurrentItem);
     bool                    _isROIBeginItem                     (SimpleMissionItem* simpleItem);
