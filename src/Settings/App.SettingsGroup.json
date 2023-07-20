@@ -371,7 +371,7 @@
     "shortDesc":        "Specify the action when tank must be refilled",
     "longDesc":         "The system can trigger action when the tank will be empty. Please specify what to do.",
     "type":             "uint32",
-    "enumStrings":      "Disabled,Pause,Return to Home",
+    "enumStrings":      "Disabled,Hold,Return to Home",
     "enumValues":       "0,1,2",
     "default":           0,
     "qgcRebootRequired": false

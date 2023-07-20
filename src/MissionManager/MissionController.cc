@@ -1592,6 +1592,7 @@ void MissionController::_recalcMissionFlightStatus()
         item->setDistanceFromStart(0);
         item->setActuatorDistanceFromStart(0);
         item->setActuatorTimeFromStart(0);
+        item->setActuatorOn(false);
 
         // Gimbal states reflect the state AFTER executing the item
 
@@ -1608,9 +1609,6 @@ void MissionController::_recalcMissionFlightStatus()
                 break;
             }
         }
-
-        //check actuator status
-        actuatorIsOn = CustomPlugin::isActuatorOn(simpleItem);
 
         // Look for specific gimbal changes
         double gimbalYaw = item->specifiedGimbalYaw();
@@ -1741,6 +1739,10 @@ void MissionController::_recalcMissionFlightStatus()
             }
             _missionFlightStatus.vehicleSpeed = newSpeed;
         }
+
+        //check actuator status
+        CustomPlugin::changeStateActuatorOn(simpleItem, actuatorIsOn);
+        item->setActuatorOn(actuatorIsOn);
 
         // Update VTOL state
         if (simpleItem && _controllerVehicle->vtol()) {
@@ -2203,8 +2205,7 @@ int MissionController::currentMissionIndex(void) const
     }
 }
 
-void MissionController::_currentMissionIndexChanged(int sequenceNumber)
-{
+void MissionController::_currentMissionIndexChanged(int sequenceNumber) {
     if (_flyView) {
         if (!_controllerVehicle->firmwarePlugin()->sendHomePositionToVehicle()) {
             sequenceNumber++;
@@ -2215,7 +2216,7 @@ void MissionController::_currentMissionIndexChanged(int sequenceNumber)
             item->setIsCurrentItem(item->sequenceNumber() == sequenceNumber);
         }
         emit currentMissionIndexChanged(currentMissionIndex());
-        emit currentMissionItemChanged(qobject_cast<VisualMissionItem*>(_visualItems->get(sequenceNumber)));
+        emit currentMissionItemChanged(currentMissionIndex(), qobject_cast<VisualMissionItem*>(_visualItems->get(sequenceNumber)));
     }
 }
 

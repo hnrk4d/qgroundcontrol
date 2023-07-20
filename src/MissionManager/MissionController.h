@@ -281,7 +281,7 @@ signals:
     void plannedHomePositionChanged         (QGeoCoordinate plannedHomePosition);
     void progressPctChanged                 (double progressPct);
     void currentMissionIndexChanged         (int currentMissionIndex);
-    void currentMissionItemChanged          (VisualMissionItem *item);
+    void currentMissionItemChanged          (int currentMissionIndex, VisualMissionItem *item);
     void currentPlanViewSeqNumChanged       (void);
     void currentPlanViewVIIndexChanged      (void);
     void currentPlanViewItemChanged         (void);

@@ -80,12 +80,12 @@ void MissionManager::generateResumeMission(int resumeIndex) {
         return;
     }
 
+    qCDebug(MissionManagerLog) << "trying to generate resume mission ...";
+
     if (inProgress()) {
         qCDebug(MissionManagerLog) << "generateResumeMission called while transaction in progress";
         return;
     }
-
-    qDebug() << "RESUME RECALCULATION";
 
     for (int i=0; i<_missionItems.count(); i++) {
         MissionItem* item = _missionItems[i];
@@ -114,6 +114,8 @@ void MissionManager::generateResumeMission(int resumeIndex) {
     resumeIndex = qMax(0, resumeIndex);
 
     QList<MissionItem*> resumeMission;
+
+    MissionItem *lastActuatorItem =0;
 
     QList<MAV_CMD> includedResumeCommands;
 
@@ -151,6 +153,13 @@ void MissionManager::generateResumeMission(int resumeIndex) {
     }
     prefixCommandCount = qMax(0, qMin(prefixCommandCount, resumeMission.count()));  // Anal prevention against crashes
 
+    if(MissionManagerLog().isDebugEnabled()) {
+        qCDebug(MissionManagerLog) << "generate resume before dup removal:";
+        for(auto x : resumeMission) {
+            qCDebug(MissionManagerLog) << x->command();
+        }
+    }
+
     // De-dup and remove no-ops from the commands which were added to the front of the mission
     bool foundROI = false;
     bool foundCameraSetMode = false;
@@ -168,10 +177,11 @@ void MissionManager::generateResumeMission(int resumeIndex) {
             foundCameraSetMode = true;
             break;
         case MAV_CMD_DO_SET_ACTUATOR: //FLKTR
-            // Only keep the last one
-            if (foundSetActuator) {
-                resumeMission.removeAt(prefixCommandCount);
+            if (!foundSetActuator) {
+                //remember the last one before resume starts
+                lastActuatorItem = new MissionItem(*resumeMission[prefixCommandCount], this);
             }
+            resumeMission.removeAt(prefixCommandCount);
             foundSetActuator = true;
             break;
         case MAV_CMD_DO_SET_ROI:
@@ -208,6 +218,25 @@ void MissionManager::generateResumeMission(int resumeIndex) {
         }
 
         prefixCommandCount--;
+    }
+
+    //append the last actuator settings to the first valid waypoint if this one does not has a following actuator item
+    auto first_waypoint = std::find_if(resumeMission.begin(), resumeMission.end(),
+                 [](const MissionItem *i){return (i->command() == MAV_CMD_NAV_WAYPOINT);});
+    if(lastActuatorItem && first_waypoint != resumeMission.end()) {
+        auto right_after_first_waypoint = first_waypoint++;
+        if(right_after_first_waypoint != resumeMission.end() &&
+            (*right_after_first_waypoint)->command() != MAV_CMD_DO_SET_ACTUATOR) {
+            qCDebug(MissionManagerLog) << "append the last actuator setting to the first valid waypoint";
+            resumeMission.insert(right_after_first_waypoint, lastActuatorItem);
+        }
+    }
+
+    if(MissionManagerLog().isDebugEnabled()) {
+        qCDebug(MissionManagerLog) << "generate resume after dup removal:";
+        for(auto x : resumeMission) {
+            qCDebug(MissionManagerLog) << x->command();
+        }
     }
 
     // Adjust sequence numbers and current item

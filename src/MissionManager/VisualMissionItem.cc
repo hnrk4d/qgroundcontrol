@@ -77,6 +77,7 @@ const VisualMissionItem& VisualMissionItem::operator=(const VisualMissionItem& o
     setDistanceFromStart(other._distance);
     setActuatorDistanceFromStart(other._actuatorDistanceFromStart);
     setActuatorTimeFromStart(other._actuatorTimeFromStart);
+    setActuatorOn(other._actuatorOn);
 
     return *this;
 }
@@ -128,6 +129,13 @@ void VisualMissionItem::setActuatorTimeFromStart(double actuatorTimeFromStart) {
     if (!QGC::fuzzyCompare(_actuatorTimeFromStart, actuatorTimeFromStart)) {
         _actuatorTimeFromStart = actuatorTimeFromStart;
         emit actuatorTimeFromStartChanged(_actuatorTimeFromStart);
+    }
+}
+
+void VisualMissionItem::setActuatorOn(bool actuatorOn) {
+    if(_actuatorOn != actuatorOn) {
+        _actuatorOn = actuatorOn;
+        emit actuatorOnChanged(_actuatorOn);
     }
 }
 

@@ -102,6 +102,7 @@ public:
     Q_PROPERTY(double distanceFromStart READ distanceFromStart      WRITE setDistanceFromStart  NOTIFY distanceFromStartChanged)    ///< Flight path cumalative horizontal distance from home point to this item
     Q_PROPERTY(double actuatorDistanceFromStart READ actuatorDistanceFromStart WRITE setActuatorDistanceFromStart NOTIFY actuatorDistanceFromStartChanged) ///< Flight path cumalative horizontal distance if actuator is on from home point to this item
     Q_PROPERTY(double actuatorTimeFromStart READ actuatorTimeFromStart WRITE setActuatorTimeFromStart NOTIFY actuatorTimeFromStartChanged) ///< Flight path cumalative horizontal distance if actuator is on from home point to this item
+    Q_PROPERTY(bool   actuatorOn READ actuatorOn WRITE setActuatorOn NOTIFY actuatorOnChanged) ///< Indicates if the actuator is on at this point of flight
 
     // Property accesors
     bool    homePosition        (void) const { return _homePositionSpecialCase; }
@@ -114,6 +115,7 @@ public:
     double  distanceFromStart   (void) const { return _distanceFromStart; }
     double  actuatorDistanceFromStart(void) const { return _actuatorDistanceFromStart; }
     double  actuatorTimeFromStart(void) const { return _actuatorTimeFromStart; }
+    bool    actuatorOn() const  {return _actuatorOn;}
     bool    isCurrentItem       (void) const { return _isCurrentItem; }
     bool    hasCurrentChildItem (void) const { return _hasCurrentChildItem; }
     double  terrainAltitude     (void) const { return _terrainAltitude; }
@@ -133,7 +135,8 @@ public:
     void setDistance                (double distance);
     void setDistanceFromStart       (double distanceFromStart);
     void setActuatorDistanceFromStart(double actuatorDistanceFromStart);
-    void setActuatorTimeFromStart(double actuatorTimeFromStart);
+    void setActuatorTimeFromStart   (double actuatorTimeFromStart);
+    void setActuatorOn              (bool actuatorOn);
     void setWizardMode              (bool wizardMode);
     void setParentItem              (VisualMissionItem* parentItem);
 
@@ -226,7 +229,8 @@ signals:
     void distanceChanged                (double distance);
     void distanceFromStartChanged       (double distanceFromStart);
     void actuatorDistanceFromStartChanged(double actuatorDistanceFromStart);
-    void actuatorTimeFromStartChanged(double actuatorTimeFromStart);
+    void actuatorTimeFromStartChanged   (double actuatorTimeFromStart);
+    void actuatorOnChanged              (bool actuatorOn);
     void isCurrentItemChanged           (bool isCurrentItem);
     void hasCurrentChildItemChanged     (bool hasCurrentChildItem);
     void sequenceNumberChanged          (int sequenceNumber);
@@ -277,6 +281,7 @@ protected:
     double                      _distanceFromStart          = 0;                                ///< Flight path cumalative horizontal distance from home point to this item
     double                      _actuatorDistanceFromStart  = 0;                                ///< Flight path cumalative horizontal distance if actuator is on from home point to this item
     double                      _actuatorTimeFromStart      = 0;
+    bool                        _actuatorOn                 = false;
     QString                     _editorQml;                                                     ///< Qml resource for editing item
     double                      _missionGimbalYaw           = qQNaN();
     double                      _missionVehicleYaw          = qQNaN();
