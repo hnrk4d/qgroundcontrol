@@ -369,10 +369,10 @@
 {
     "name":             "tankAction",
     "shortDesc":        "Specify the action when tank must be refilled",
-    "longDesc":         "The system can trigger action when the tank will be empty. Please specify what to do.",
+    "longDesc":         "The system can warn you when the tank is empty. Please specify what to do.",
     "type":             "uint32",
-    "enumStrings":      "Disabled,Hold,Return to Home",
-    "enumValues":       "0,1,2",
+    "enumStrings":      "Disabled,Warning",
+    "enumValues":       "0,1",
     "default":           0,
     "qgcRebootRequired": false
 },

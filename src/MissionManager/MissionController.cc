@@ -1697,8 +1697,6 @@ void MissionController::_recalcMissionFlightStatus()
                         _addTimeDistance(_missionFlightStatus.vtolMode == QGCMAVLink::VehicleClassMultiRotor,
                                          actuatorIsOn,
                                          hoverTime, cruiseTime, 0, distance, item->sequenceNumber());
-                        item->setActuatorDistanceFromStart(_missionFlightStatus.actuatorDistance);
-                        item->setActuatorTimeFromStart(_missionFlightStatus.actuatorTime);
                     }
 
                     if (complexItem) {
@@ -1713,8 +1711,6 @@ void MissionController::_recalcMissionFlightStatus()
                                          hoverTime, cruiseTime, 0, distance, item->sequenceNumber());
 
                         totalHorizontalDistance += distance;
-                        item->setActuatorDistanceFromStart(_missionFlightStatus.actuatorDistance);
-                        item->setActuatorTimeFromStart(_missionFlightStatus.actuatorTime);
                     }
 
                     lastFlyThroughVI = item;
@@ -1741,8 +1737,12 @@ void MissionController::_recalcMissionFlightStatus()
         }
 
         //check actuator status
-        CustomPlugin::changeStateActuatorOn(simpleItem, actuatorIsOn);
+        CustomPlugin::changeStateActuatorOn(item, actuatorIsOn);
         item->setActuatorOn(actuatorIsOn);
+        item->setActuatorDistanceFromStart(_missionFlightStatus.actuatorDistance);
+        item->setActuatorTimeFromStart(_missionFlightStatus.actuatorTime);
+        qDebug() << "ACTUATOR #" << i << item->actuatorDistanceFromStart() <<
+            item->actuatorTimeFromStart() << item->actuatorOn();
 
         // Update VTOL state
         if (simpleItem && _controllerVehicle->vtol()) {
