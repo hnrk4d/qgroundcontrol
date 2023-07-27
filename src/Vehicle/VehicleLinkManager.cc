@@ -80,6 +80,8 @@ void VehicleLinkManager::_commRegainedOnLink(LinkInterface* link)
     emit linkStatusesChanged();
 
     // Check recovery from total communication loss
+    // FLKTR: old version:
+    /*
     if (_communicationLost) {
         bool noCommunicationLoss = true;
         for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
@@ -89,6 +91,18 @@ void VehicleLinkManager::_commRegainedOnLink(LinkInterface* link)
             }
         }
         if (noCommunicationLoss) {
+            _communicationLost = false;
+            emit communicationLostChanged(false);
+        }
+    }*/
+    //new version:
+    if (_communicationLost) {
+        bool noCommunicationLoss = false;
+        for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
+            noCommunicationLoss |= !linkInfo.commLost;
+        }
+        if (noCommunicationLoss) {
+            //at least one communication link is on
             _communicationLost = false;
             emit communicationLostChanged(false);
         }
@@ -129,6 +143,8 @@ void VehicleLinkManager::_commLostCheck(void)
     }
 
     // Check for total communication loss
+      // FLKTR: old version:
+       /*
     if (!_communicationLost) {
         bool totalCommunicationLoss = true;
         for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
@@ -137,16 +153,32 @@ void VehicleLinkManager::_commLostCheck(void)
                 break;
             }
         }
+        */
+        //new:
+    if (linkStatusChange) {
+        bool totalCommunicationLoss = true;
+        for (const LinkInfo_t& linkInfo: _rgLinkInfo) {
+            totalCommunicationLoss &= linkInfo.commLost;
+        }
+
         if (totalCommunicationLoss) {
             if (_autoDisconnect) {
                 // There is only one link to the vehicle and we want to auto disconnect from it
                 closeVehicle();
                 return;
             }
-            _vehicle->_say(tr("%1Communication lost").arg(_vehicle->_vehicleIdSpeech()));
+            if(!_communicationLost) {// status has changed
+                _vehicle->_say(tr("%1Communication lost").arg(_vehicle->_vehicleIdSpeech()));
 
-            _communicationLost = true;
-            emit communicationLostChanged(true);
+                _communicationLost = true;
+                emit communicationLostChanged(true);
+            }
+        }
+        else {
+            if(_communicationLost) {
+                _communicationLost = false;
+                emit communicationLostChanged(false);
+            }
         }
     }
 }

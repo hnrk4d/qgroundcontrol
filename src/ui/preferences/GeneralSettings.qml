@@ -324,7 +324,7 @@ Rectangle {
 
                                 QGCLabel {
                                     id:         tankAction
-                                    text:       qsTr("Action")
+                                    text:       qsTr("Warning ...")
                                     visible:    _tankAction.visible
                                 }
                                 FactComboBox {
@@ -336,7 +336,7 @@ Rectangle {
 
                                 QGCLabel {
                                     id:         tankEmptyWarningLabel
-                                    text:       qsTr("Warning tolerance")
+                                    text:       qsTr("... if volume falls below")
                                     visible:    _tankEmptyWarning.visible
                                 }
                                 FactTextField {

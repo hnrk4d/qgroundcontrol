@@ -623,7 +623,7 @@ void TransectStyleComplexItem::_reallyQueryTransectsPathHeightInfo(void)
             connect(_currentDSMFilePolyPathQuery, &DSMFilePolyPathRequest::terrainDataReady, this, &TransectStyleComplexItem::_polyPathTerrainData);
             connect(_currentDSMFilePolyPathQuery, &DSMFilePolyPathRequest::finished, _currentDSMFilePolyPathQuery, &QObject::deleteLater);
             _currentDSMFilePolyPathQuery->start();
-            qDebug(TransectStyleComplexItemLog) << "DSM file requested for terrain (1)";
+            qCDebug(TransectStyleComplexItemLog) << "DSM file requested for terrain (1)";
         }
         else {
             _currentTerrainPolyPathQuery = new TerrainPolyPathQuery(true /* autoDelete */);
@@ -831,7 +831,6 @@ void TransectStyleComplexItem::_adjustForMaxRates(void)
     if (maxClimbRate > 0) {
         bool climbRateAdjusted;
         do {
-            //qDebug() << "climb rate pass";
             climbRateAdjusted = false;
             for (int i=0; i<_rgFlightPathCoordInfo.count() - 1; i++) {
                 QGeoCoordinate& fromCoord   = _rgFlightPathCoordInfo[i].coord;
@@ -842,12 +841,9 @@ void TransectStyleComplexItem::_adjustForMaxRates(void)
                 double seconds          = distance / flightSpeed;
                 double climbRate        = altDifference / seconds;
 
-                //qDebug() << QString("Index:%1 altDifference:%2 distance:%3 seconds:%4 climbRate:%5").arg(i).arg(altDifference).arg(distance).arg(seconds).arg(climbRate);
-
                 if (climbRate > 0 && climbRate - maxClimbRate > 0.1) {
                     double maxAltitudeDelta = maxClimbRate * seconds;
                     fromCoord.setAltitude(toCoord.altitude() - maxAltitudeDelta);
-                    //qDebug() << "Adjusting";
                     climbRateAdjusted = true;
                 }
             }
@@ -858,7 +854,6 @@ void TransectStyleComplexItem::_adjustForMaxRates(void)
         bool descentRateAdjusted;
         maxDescentRate = -maxDescentRate;
         do {
-            //qDebug() << "descent rate pass";
             descentRateAdjusted = false;
             for (int i=0; i<_rgFlightPathCoordInfo.count() - 1; i++) {
                 QGeoCoordinate& fromCoord   = _rgFlightPathCoordInfo[i].coord;
@@ -869,12 +864,9 @@ void TransectStyleComplexItem::_adjustForMaxRates(void)
                 double seconds          = distance / flightSpeed;
                 double descentRate      = altDifference / seconds;
 
-                //qDebug() << QString("Index:%1 altDifference:%2 distance:%3 seconds:%4 descentRate:%5").arg(i).arg(altDifference).arg(distance).arg(seconds).arg(descentRate);
-
                 if (descentRate < 0 && descentRate - maxDescentRate < -0.1) {
                     double maxAltitudeDelta = maxDescentRate * seconds;
                     toCoord.setAltitude(fromCoord.altitude() + maxAltitudeDelta);
-                    //qDebug() << "Adjusting";
                     descentRateAdjusted = true;
                 }
             }
@@ -1268,7 +1260,6 @@ void TransectStyleComplexItem::_appendCameraTriggerDistance(QList<MissionItem*>&
                                         true,                           // autoContinue
                                         false,                          // isCurrentItem
                                         missionItemParent);
-    //qDebug() << "MAV_CMD_DO_SET_ACTUATOR " << p;
     items.append(item);
 }
 

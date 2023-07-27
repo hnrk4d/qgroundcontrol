@@ -1741,8 +1741,8 @@ void MissionController::_recalcMissionFlightStatus()
         item->setActuatorOn(actuatorIsOn);
         item->setActuatorDistanceFromStart(_missionFlightStatus.actuatorDistance);
         item->setActuatorTimeFromStart(_missionFlightStatus.actuatorTime);
-        qDebug() << "ACTUATOR #" << i << item->actuatorDistanceFromStart() <<
-            item->actuatorTimeFromStart() << item->actuatorOn();
+        //qCDebug(MissionControllerLog) << "actuator #" << i << item->actuatorDistanceFromStart() <<
+            //item->actuatorTimeFromStart() << item->actuatorOn();
 
         // Update VTOL state
         if (simpleItem && _controllerVehicle->vtol()) {

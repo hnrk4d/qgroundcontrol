@@ -154,7 +154,7 @@ void MissionManager::generateResumeMission(int resumeIndex) {
     prefixCommandCount = qMax(0, qMin(prefixCommandCount, resumeMission.count()));  // Anal prevention against crashes
 
     if(MissionManagerLog().isDebugEnabled()) {
-        qCDebug(MissionManagerLog) << "generate resume before dup removal:";
+        qCDebug(MissionManagerLog) << "generated resume before dup removal:";
         for(auto x : resumeMission) {
             qCDebug(MissionManagerLog) << x->command();
         }
@@ -233,7 +233,7 @@ void MissionManager::generateResumeMission(int resumeIndex) {
     }
 
     if(MissionManagerLog().isDebugEnabled()) {
-        qCDebug(MissionManagerLog) << "generate resume after dup removal:";
+        qCDebug(MissionManagerLog) << "generated resume after dup removal:";
         for(auto x : resumeMission) {
             qCDebug(MissionManagerLog) << x->command();
         }

@@ -362,7 +362,7 @@
     "type":                 "double",
     "units":                "l",
     "min":                  1,
-    "max":                  100,
+    "max":                  1000,
     "default":              30,
     "decimalPlaces":        1
 },
@@ -371,20 +371,20 @@
     "shortDesc":        "Specify the action when tank must be refilled",
     "longDesc":         "The system can warn you when the tank is empty. Please specify what to do.",
     "type":             "uint32",
-    "enumStrings":      "Disabled,Warning",
-    "enumValues":       "0,1",
+    "enumStrings":      "Disabled,Verbal,Verbal and visual",
+    "enumValues":       "0,1,2",
     "default":           0,
     "qgcRebootRequired": false
 },
 {
     "name":                 "tankEmptyWarning",
-    "shortDesc":            "Tank empty tolerance warning",
-    "longDesc":             "Specify when the warning will be triggered.",
+    "shortDesc":            "Specify when and how the warning will be triggered.",
+    "longDesc":             "Warn the user if the tank volume falls below the specified value.",
     "type":                 "double",
     "units":                "%",
     "min":                  0,
-    "max":                  100,
-    "default":              10,
+    "max":                  99,
+    "default":              5,
     "decimalPlaces":        1
 }
 ]
