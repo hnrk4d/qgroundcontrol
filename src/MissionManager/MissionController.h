@@ -423,4 +423,6 @@ private:
     static const char*  _jsonComplexItemsKey;
 
     static const int    _missionFileVersion;
+
+    static void _changeStateActuatorOn(VisualMissionItem *, bool &state); //changes the state only if it is a MAV_CMD_DO_SET_ACTUATOR command
 };

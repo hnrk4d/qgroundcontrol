@@ -31,7 +31,6 @@
 #include "QGCCorePlugin.h"
 #include "TakeoffMissionItem.h"
 #include "PlanViewSettings.h"
-#include "CustomPlugin.h"
 
 #define UPDATE_TIMEOUT 5000 ///< How often we check for bounding box changes
 
@@ -74,7 +73,6 @@ MissionController::MissionController(PlanMasterController* masterController, QOb
     // The follow is used to compress multiple recalc calls in a row to into a single call.
     connect(this, &MissionController::_recalcMissionFlightStatusSignal, this, &MissionController::_recalcMissionFlightStatus,   Qt::QueuedConnection);
     connect(this, &MissionController::_recalcFlightPathSegmentsSignal,  this, &MissionController::_recalcFlightPathSegments,    Qt::QueuedConnection);
-    connect(this, &MissionController::currentMissionItemChanged, static_cast<CustomPlugin*>(qgcApp()->toolbox()->corePlugin()), &CustomPlugin::flightProgress);
     qgcApp()->addCompressedSignal(QMetaMethod::fromSignal(&MissionController::_recalcMissionFlightStatusSignal));
     qgcApp()->addCompressedSignal(QMetaMethod::fromSignal(&MissionController::_recalcFlightPathSegmentsSignal));
     qgcApp()->addCompressedSignal(QMetaMethod::fromSignal(&MissionController::recalcTerrainProfile));
@@ -1737,12 +1735,12 @@ void MissionController::_recalcMissionFlightStatus()
         }
 
         //check actuator status
-        CustomPlugin::changeStateActuatorOn(item, actuatorIsOn);
+        _changeStateActuatorOn(item, actuatorIsOn);
         item->setActuatorOn(actuatorIsOn);
         item->setActuatorDistanceFromStart(_missionFlightStatus.actuatorDistance);
         item->setActuatorTimeFromStart(_missionFlightStatus.actuatorTime);
-        //qCDebug(MissionControllerLog) << "actuator #" << i << item->actuatorDistanceFromStart() <<
-            //item->actuatorTimeFromStart() << item->actuatorOn();
+        qCDebug(MissionControllerLog) << "actuator #" << i << item->sequenceNumber() << item->actuatorDistanceFromStart() <<
+            item->actuatorTimeFromStart() << item->actuatorOn();
 
         // Update VTOL state
         if (simpleItem && _controllerVehicle->vtol()) {
@@ -2735,4 +2733,34 @@ void MissionController::setGlobalAltitudeMode(QGroundControlQmlGlobal::AltMode a
         _globalAltMode = altMode;
         emit globalAltitudeModeChanged();
     }
+}
+
+void MissionController::_changeStateActuatorOn(VisualMissionItem *i, bool &state) {
+    SimpleMissionItem *s=qobject_cast<SimpleMissionItem*>(i);
+    if(s) {
+        if(s->command() == MAV_CMD_DO_SET_ACTUATOR) {
+            double param[7];
+            s->getParams(param[0],
+                         param[1],
+                         param[2],
+                         param[3],
+                         param[4],
+                         param[5],
+                         param[6]);
+            if(std::fabs((param[0])-(-1.0))<=std::numeric_limits<double>::epsilon() ||
+                std::fabs((param[1])-(-1.0))<=std::numeric_limits<double>::epsilon() ||
+                std::fabs((param[2])-(-1.0))<=std::numeric_limits<double>::epsilon() ||
+                std::fabs((param[3])-(-1.0))<=std::numeric_limits<double>::epsilon() ||
+                std::fabs((param[4])-(-1.0))<=std::numeric_limits<double>::epsilon() ||
+                std::fabs((param[5])-(-1.0))<=std::numeric_limits<double>::epsilon() ||
+                std::fabs((param[6])-(-1.0))<=std::numeric_limits<double>::epsilon()) {
+                //if one of the params is -1 we assume that this turns off the actuators
+                state = false;
+            }
+            else {
+                state = true;
+            }
+        }
+    }
+    //no change otherwise
 }

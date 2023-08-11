@@ -35,9 +35,7 @@ Rectangle {
     property Fact _dsmFilePath:                         QGroundControl.settingsManager.appSettings.dsmFilePath
     property Fact _dsmSampleDistance:                   QGroundControl.settingsManager.appSettings.dsmSampleDistance
     property Fact _dsmSampleSize:                       QGroundControl.settingsManager.appSettings.dsmSampleSize
-    property Fact _tankSize:                            QGroundControl.settingsManager.appSettings.tankSize
     property Fact _tankAction:                          QGroundControl.settingsManager.appSettings.tankAction
-    property Fact _tankEmptyWarning:                    QGroundControl.settingsManager.appSettings.tankEmptyWarning
     property Fact _savePath:                            QGroundControl.settingsManager.appSettings.savePath
     property Fact _appFontPointSize:                    QGroundControl.settingsManager.appSettings.appFontPointSize
     property Fact _userBrandImageIndoor:                QGroundControl.settingsManager.brandImageSettings.userBrandImageIndoor
@@ -311,20 +309,8 @@ Rectangle {
                                 }
 
                                 QGCLabel {
-                                    id:         tankSizeLabel
-                                    text:       qsTr("Tank size")
-                                    visible:    _tankSize.visible
-                                }
-                                FactTextField {
-                                    Layout.preferredWidth:  _comboFieldWidth
-                                    id:                     tankSize
-                                    visible:                fact.visible
-                                    fact:                   _tankSize
-                                }
-
-                                QGCLabel {
                                     id:         tankAction
-                                    text:       qsTr("Warning ...")
+                                    text:       qsTr("Tank level warning")
                                     visible:    _tankAction.visible
                                 }
                                 FactComboBox {
@@ -332,18 +318,6 @@ Rectangle {
                                     fact:                   _tankAction
                                     indexModel:             true
                                     visible:                tankAction.visible
-                                }
-
-                                QGCLabel {
-                                    id:         tankEmptyWarningLabel
-                                    text:       qsTr("... if volume falls below")
-                                    visible:    _tankEmptyWarning.visible
-                                }
-                                FactTextField {
-                                    Layout.preferredWidth:  _comboFieldWidth
-                                    id:                     tankEmptyWarning
-                                    visible:                fact.visible
-                                    fact:                   _tankEmptyWarning
                                 }
 
                                 QGCLabel {
