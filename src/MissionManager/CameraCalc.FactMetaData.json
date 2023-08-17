@@ -26,22 +26,23 @@
 },
 {
     "name":             "ImageDensity",
-    "shortDesc":        "Image desity at surface.",
-    "type":             "double",
-    "min":              0,
-    "units":            "cm/px",
-    "decimalPlaces":    1,
-    "default":          1.2
-},
-{
-    "name":             "FrontalOverlap",
-    "shortDesc":        "Amount of overlap between images in the forward facing direction.",
+    "shortDesc":        "Rotary disk speed",
     "type":             "double",
     "decimalPlaces":    0,
     "min":              0,
-    "max":              85,
+    "max":              100,
     "units":            "%",
-    "default":          70
+    "default":          100
+},
+{
+    "name":             "FrontalOverlap",
+    "shortDesc":        "Docing shaft speed",
+    "type":             "double",
+    "decimalPlaces":    0,
+    "min":              0,
+    "max":              100,
+    "units":            "%",
+    "default":          100
 },
 {
     "name":             "SideOverlap",

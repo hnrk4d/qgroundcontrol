@@ -85,7 +85,8 @@ TransectStyleComplexItemEditor {
                     //each time the index changes we want to update the motor percentage setting of the
                     //_missionItem. Remember: we reinterprete the camera setting for footprint distance as
                     //actuator setting for motors. The user still can overwrite the motor setting if he/she wants.
-                    _missionItem.cameraCalc.adjustedFootprintFrontal.value = SpreadingUnitComponentController.libraryMotorPercentage(currentIndex)
+                    _missionItem.cameraCalc.adjustedFootprintFrontal.value = SpreadingUnitComponentController.libraryDosingShaft(currentIndex)
+                    _missionItem.cameraCalc.imageDensity.value = SpreadingUnitComponentController.libraryRotaryDisk(currentIndex)
                 }
 
                 model : {SpreadingUnitComponentController.librarySize; createModel()} //enforce dependency
@@ -96,6 +97,8 @@ TransectStyleComplexItemEditor {
 
                 Component.onCompleted: {
                     SpreadingUnitComponentController.currentIndexChanged.connect(indexHasChangedHandler)
+                    _missionItem.cameraCalc.adjustedFootprintFrontal.value = SpreadingUnitComponentController.libraryDosingShaft(currentIndex)
+                    _missionItem.cameraCalc.imageDensity.value = SpreadingUnitComponentController.libraryRotaryDisk(currentIndex)
                 }
             }
 

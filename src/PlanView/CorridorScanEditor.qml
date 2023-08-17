@@ -68,7 +68,8 @@ TransectStyleComplexItemEditor {
 
                 function indexHasChangedHandler() {
                     //see: SurveyItemEditor.indexHasChangedHandler
-                    _missionItem.cameraCalc.adjustedFootprintFrontal.value = SpreadingUnitComponentController.libraryMotorPercentage(currentIndex)
+                    _missionItem.cameraCalc.adjustedFootprintFrontal.value = SpreadingUnitComponentController.libraryDosingShaft(currentIndex)
+                    _missionItem.cameraCalc.imageDensity.value = SpreadingUnitComponentController.libraryRotaryDisk(currentIndex)
                 }
 
                 model : {SpreadingUnitComponentController.librarySize; createModel()} //enforce dependency
@@ -79,6 +80,8 @@ TransectStyleComplexItemEditor {
 
                 Component.onCompleted: {
                     SpreadingUnitComponentController.currentIndexChanged.connect(indexHasChangedHandler)
+                    _missionItem.cameraCalc.adjustedFootprintFrontal.value = SpreadingUnitComponentController.libraryDosingShaft(currentIndex)
+                    _missionItem.cameraCalc.imageDensity.value = SpreadingUnitComponentController.libraryRotaryDisk(currentIndex)
                 }
             }
 

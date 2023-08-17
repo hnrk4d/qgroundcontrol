@@ -17,6 +17,7 @@ Column {
     property string distanceToSurfaceLabel
     property string frontalDistanceLabel
     property string sideDistanceLabel
+    property string flktrRotaryDiskLabel //FLKTR
 
     property real   _margin:            ScreenTools.defaultFontPixelWidth / 2
     property real   _fieldWidth:        ScreenTools.defaultFontPixelWidth * 10.5
@@ -132,6 +133,12 @@ Column {
         FactTextField {
             Layout.fillWidth:   true
             fact:               cameraCalc.adjustedFootprintFrontal
+        }
+
+        QGCLabel { text: flktrRotaryDiskLabel } //FLKTR
+        FactTextField {
+            Layout.fillWidth:   true
+            fact:               cameraCalc.imageDensity
         }
 
         QGCLabel { text: sideDistanceLabel }
