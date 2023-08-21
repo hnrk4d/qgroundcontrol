@@ -15,17 +15,24 @@ Grid {
     columns:        2
     columnSpacing:  ScreenTools.defaultFontPixelWidth
 
+    //FLKTR: the dosing shaft impacts the application rate based on the measurements of the library
+    property real lib_weight : (missionItem.vehicleSpeed>0)?missionItem.actuatorDistance*SpreadingUnitComponentController.libraryEntryWeightedGrit(SpreadingUnitComponentController.currentIndex)/(missionItem.vehicleSpeed*1000):0
+    property real scaling : missionItem.cameraCalc.adjustedFootprintFrontal.value/SpreadingUnitComponentController.libraryDosingShaft(SpreadingUnitComponentController.currentIndex)
+    property real weight : lib_weight*scaling
+    property real area : QGroundControl.unitsConversion.squareMetersToAppSettingsAreaUnits(missionItem.coveredArea)
+    property real kg_per_ha : weight/(area*0.0001)
+
+    QGCLabel { text: qsTr("Weight") } //FLKTR
+    QGCLabel { text: weight.toFixed(1) + " " + qsTr(" kg") }
+
     QGCLabel { text: qsTr("Appl. Area") }
-    QGCLabel { text: QGroundControl.unitsConversion.squareMetersToAppSettingsAreaUnits(missionItem.coveredArea).toFixed(2) + " " + QGroundControl.unitsConversion.appSettingsAreaUnitsString }
+    QGCLabel { text: area.toFixed(2) + " " + QGroundControl.unitsConversion.appSettingsAreaUnitsString }
+
+    QGCLabel { text: qsTr("Appl. Rate") } //FLKTR
+    QGCLabel { text: kg_per_ha.toFixed(1) + " " + qsTr("kg/ha") }
 
     QGCLabel { text: qsTr("Effective Dist.") } //FLKTR
     QGCLabel { text: missionItem.actuatorDistance.toFixed(1) + " " + qsTr("m") }
-
-    //QGCLabel { text: qsTr("Grit") } //FLKTR
-    //QGCLabel { text: SpreadingUnitComponentController.libraryEntryWeightedGritName(SpreadingUnitComponentController.currentIndex) }
-
-    QGCLabel { text: qsTr("Weight") } //FLKTR
-    QGCLabel { text: ((missionItem.vehicleSpeed>0)?missionItem.actuatorDistance*SpreadingUnitComponentController.libraryEntryWeightedGrit(SpreadingUnitComponentController.currentIndex)/(missionItem.vehicleSpeed*1000):0).toFixed(1) + " " + qsTr("kg") }
 
     /* FLKTR
     QGCLabel { text: qsTr("Photo Count") }

@@ -1229,7 +1229,7 @@ void TransectStyleComplexItem::_appendCameraTriggerDistance(QList<MissionItem*>&
     We reinterprete this function to set the PWM AUX actuators to the desired values to control the motors
     of the attached spraying and spreading units.
     We interprete the value of the triggerDistance to be the percentage of the motor performance and map the
-    value to the range [-1,1] according to teh specification of MAV_CMD_DO_SET_ACTUATOR
+    value to the range [-1,1] according to the specification of MAV_CMD_DO_SET_ACTUATOR
     (https://mavlink.io/en/messages/common.html#MAV_CMD_DO_SET_ACTUATOR).
  */
     /*
@@ -1243,15 +1243,20 @@ void TransectStyleComplexItem::_appendCameraTriggerDistance(QList<MissionItem*>&
                                         true,                           // autoContinue
                                         false,                          // isCurrentItem
                                         missionItemParent);*/
-    //map triggerDistance to [-1,1]
-    triggerDistance = qMax(0.0f, qMin(100.0f, triggerDistance));
-    float p = 2.0*triggerDistance/100.0f-1.0f;
-    p=qMax(-1.0f, qMin(1.0f, p));
+    float dosingShaft = _cameraCalc.adjustedFootprintFrontal()->rawValue().toFloat(); //value reinterpretation
+    float rotaryDisk  = _cameraCalc.imageDensity()->rawValue().toFloat();
+    dosingShaft = qMax(0.0f, qMin(100.0f, dosingShaft));
+    dosingShaft = 2.0*dosingShaft/100.0f-1.0f;
+    dosingShaft=qMax(-1.0f, qMin(1.0f, dosingShaft));
+    rotaryDisk  = qMax(0.0f, qMin(100.0f, rotaryDisk));
+    rotaryDisk = 2.0*rotaryDisk/100.0f-1.0f;
+    rotaryDisk=qMax(-1.0f, qMin(1.0f, rotaryDisk));
+    qDebug() << "ds" << dosingShaft << ", rd" << rotaryDisk;
     MissionItem* item = new MissionItem(seqNum++,
                                         MAV_CMD_DO_SET_ACTUATOR,
                                         MAV_FRAME_MISSION,
-                                        p, //param1 -> PWM AUX1
-                                        p,  //param2 -> PWM AUX2
+                                        dosingShaft, //param1 -> PWM AUX1
+                                        rotaryDisk,  //param2 -> PWM AUX2
                                         1,  //param3 -> PWM AUX3
                                         0, //param4 unused
                                         0, //param5 unused

@@ -37,4 +37,3 @@ private:
     float _param6 = 0.0f;
     float _param7 = 0.0f;
 };
-

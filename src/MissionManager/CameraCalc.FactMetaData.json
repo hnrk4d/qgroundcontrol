@@ -28,7 +28,7 @@
     "name":             "ImageDensity",
     "shortDesc":        "Rotary disk speed",
     "type":             "double",
-    "decimalPlaces":    0,
+    "decimalPlaces":    1,
     "min":              0,
     "max":              100,
     "units":            "%",
@@ -57,7 +57,7 @@
 {
     "name":             "AdjustedFootprintFrontal",
     "type":             "double",
-    "decimalPlaces":    0,
+    "decimalPlaces":    1,
     "min":              0,
     "max":              100,
     "units":            "%",
