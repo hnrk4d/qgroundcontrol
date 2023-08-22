@@ -32,6 +32,7 @@ Rectangle {
     anchors.fill:       parent
     anchors.margins:    ScreenTools.defaultFontPixelWidth
 
+    property Fact _tool:                                QGroundControl.settingsManager.toolSettings.tool
     property Fact _dsmFilePath:                         QGroundControl.settingsManager.appSettings.dsmFilePath
     property Fact _dsmSampleDistance:                   QGroundControl.settingsManager.appSettings.dsmSampleDistance
     property Fact _dsmSampleSize:                       QGroundControl.settingsManager.appSettings.dsmSampleSize
@@ -561,7 +562,47 @@ Rectangle {
                         }
                     }
 
-                    Item { width: 1; height: _margins; visible: unitsSectionLabel.visible }
+                    Item { width: 1; height: _margins; visible: toolSectionLabel.visible }
+                    QGCLabel {
+                        id:         toolSectionLabel
+                        text:       qsTr("Tool")
+                        visible:    QGroundControl.settingsManager.toolSettings.visible
+                    }
+                    Rectangle {
+                        Layout.preferredHeight: toolCol.height + (_margins * 2)
+                        Layout.preferredWidth:  toolCol.width + (_margins * 2)
+                        color:                  qgcPal.windowShade
+                        visible:                toolSectionLabel.visible
+                        Layout.fillWidth:       true
+
+                        ColumnLayout {
+                            id:                         toolCol
+                            anchors.margins:            _margins
+                            anchors.top:                parent.top
+                            anchors.horizontalCenter:   parent.horizontalCenter
+                            spacing:                    _margins
+
+                            GridLayout {
+                                columns:            2
+                                columnSpacing:      ScreenTools.defaultFontPixelWidth
+                                visible:            QGroundControl.settingsManager.toolSettings.visible
+				
+                                QGCLabel {
+                                    id:                     tool
+                                    text:                   qsTr("Tool Selection")
+                                    visible:                _tool.visible
+                                }
+                                FactComboBox {
+                                    Layout.preferredWidth:  _comboFieldWidth
+                                    fact:                   _tool
+                                    indexModel:             true
+                                    visible:                tool.visible
+                                }
+			    }
+			}
+		    }
+
+		    Item { width: 1; height: _margins; visible: unitsSectionLabel.visible }
                     QGCLabel {
                         id:         unitsSectionLabel
                         text:       qsTr("Units")

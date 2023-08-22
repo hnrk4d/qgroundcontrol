@@ -693,6 +693,7 @@ HEADERS += \
     src/Settings/FlightMapSettings.h \
     src/Settings/FlyViewSettings.h \
     src/Settings/NTRIPSettings.h \
+    src/Settings/ToolSettings.h \
     src/Settings/OfflineMapsSettings.h \
     src/Settings/PlanViewSettings.h \
     src/Settings/RTKSettings.h \
@@ -949,6 +950,7 @@ SOURCES += \
     src/Settings/FirmwareUpgradeSettings.cc \
     src/Settings/FlightMapSettings.cc \
     src/Settings/NTRIPSettings.cc \
+    src/Settings/ToolSettings.cc \
     src/Settings/FlyViewSettings.cc \
     src/Settings/OfflineMapsSettings.cc \
     src/Settings/PlanViewSettings.cc \
