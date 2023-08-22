@@ -32,7 +32,6 @@ class VideoManager;
 class MAVLinkLogManager;
 class QGCCorePlugin;
 class SettingsManager;
-class AirspaceManager;
 class ADSBVehicleManager;
 class NTRIP;
 class DSMFile;
@@ -69,7 +68,6 @@ public:
     MAVLinkLogManager*          mavlinkLogManager       () { return _mavlinkLogManager; }
     QGCCorePlugin*              corePlugin              () { return _corePlugin; }
     SettingsManager*            settingsManager         () { return _settingsManager; }
-    AirspaceManager*            airspaceManager         () { return _airspaceManager; }
     ADSBVehicleManager*         adsbVehicleManager      () { return _adsbVehicleManager; }
     NTRIP*                      ntrip                   () { return _ntrip; }
     DSMFile*                    dsmFile                 () { return _dsmFile; }
@@ -111,7 +109,6 @@ private:
     MAVLinkLogManager*          _mavlinkLogManager      = nullptr;
     QGCCorePlugin*              _corePlugin             = nullptr;
     SettingsManager*            _settingsManager        = nullptr;
-    AirspaceManager*            _airspaceManager        = nullptr;
     ADSBVehicleManager*         _adsbVehicleManager     = nullptr;
     NTRIP*                      _ntrip                  = nullptr;
     DSMFile*                    _dsmFile                = nullptr;
