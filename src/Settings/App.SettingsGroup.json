@@ -364,16 +364,6 @@
     "decimalPlaces": 2
 },
 {
-    "name":             "tankAction",
-    "shortDesc":        "Specify the action when tank must be refilled",
-    "longDesc":         "The system can warn you when the tank is empty. Please specify what to do.",
-    "type":             "uint32",
-    "enumStrings":      "Disabled,Verbal,Verbal and visual",
-    "enumValues":       "0,1,2",
-    "default":           0,
-    "qgcRebootRequired": false
-},
-{
     "name":      "forwardMavlinkAPMSupportHostName",
     "shortDesc": "Ardupilot Support Host name",
     "longDesc":  "Ardupilot Support server to forward mavlink to. i.e: support.ardupilot.org:xxxx",

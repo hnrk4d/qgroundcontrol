@@ -18,3 +18,5 @@ DECLARE_SETTINGGROUP(Tool, "Tool")
 }
 
 DECLARE_SETTINGSFACT(ToolSettings, tool)
+DECLARE_SETTINGSFACT(ToolSettings, tankVolume)
+DECLARE_SETTINGSFACT(ToolSettings, tankAction)

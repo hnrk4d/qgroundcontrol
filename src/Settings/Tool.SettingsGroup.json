@@ -12,6 +12,27 @@
     "enumValues":       "0,1,2",
     "default":          0,
     "qgcRebootRequired": true
+},
+{
+    "name":             "tankVolume",
+    "shortDesc":        "Tank volume",
+    "longDesc":         "Volume of the tool tank.",
+    "type":             "double",
+    "units":            "l",
+    "min":              1,
+    "max":              10000,
+    "default":          20,
+    "decimalPlaces":    1
+},
+{
+    "name":             "tankAction",
+    "shortDesc":        "Specify the action when tank must be refilled",
+    "longDesc":         "The system can warn you when the tank is empty. Please specify what to do.",
+    "type":             "uint32",
+    "enumStrings":      "Disabled,Verbal,Verbal and visual",
+    "enumValues":       "0,1,2",
+    "default":           0,
+    "qgcRebootRequired": false
 }
 ]
 }

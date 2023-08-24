@@ -19,4 +19,6 @@ public:
     DEFINE_SETTING_NAME_GROUP()
 
     DEFINE_SETTINGFACT(tool)
+    DEFINE_SETTINGFACT(tankVolume)
+    DEFINE_SETTINGFACT(tankAction)
 };

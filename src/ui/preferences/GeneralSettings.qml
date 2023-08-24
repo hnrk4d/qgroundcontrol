@@ -32,11 +32,12 @@ Rectangle {
     anchors.fill:       parent
     anchors.margins:    ScreenTools.defaultFontPixelWidth
 
-    property Fact _tool:                                QGroundControl.settingsManager.toolSettings.tool
     property Fact _dsmFilePath:                         QGroundControl.settingsManager.appSettings.dsmFilePath
     property Fact _dsmSampleDistance:                   QGroundControl.settingsManager.appSettings.dsmSampleDistance
     property Fact _dsmSampleSize:                       QGroundControl.settingsManager.appSettings.dsmSampleSize
-    property Fact _tankAction:                          QGroundControl.settingsManager.appSettings.tankAction
+    property Fact _tool:                                QGroundControl.settingsManager.toolSettings.tool
+    property Fact _tankAction:                          QGroundControl.settingsManager.toolSettings.tankAction
+    property Fact _tankVolume:                          QGroundControl.settingsManager.toolSettings.tankVolume
     property Fact _savePath:                            QGroundControl.settingsManager.appSettings.savePath
     property Fact _appFontPointSize:                    QGroundControl.settingsManager.appSettings.appFontPointSize
     property Fact _userBrandImageIndoor:                QGroundControl.settingsManager.brandImageSettings.userBrandImageIndoor
@@ -299,26 +300,6 @@ Rectangle {
                                     id:                     maxGotoDistanceField
                                     visible:                fact.visible
                                     fact:                  _flyViewSettings.maxGoToLocationDistance
-                                }
-
-                                //-----------------------------------------------------------------
-                                //-- FLKTR: Tank size
-                                QGCLabel {
-                                    text:               qsTr("Tank Settings")
-                                    Layout.columnSpan:  2
-                                    Layout.alignment:   Qt.AlignHCenter
-                                }
-
-                                QGCLabel {
-                                    id:         tankAction
-                                    text:       qsTr("Tank level warning")
-                                    visible:    _tankAction.visible
-                                }
-                                FactComboBox {
-                                    Layout.preferredWidth:  _comboFieldWidth
-                                    fact:                   _tankAction
-                                    indexModel:             true
-                                    visible:                tankAction.visible
                                 }
 
                                 QGCLabel {
@@ -598,7 +579,30 @@ Rectangle {
                                     indexModel:             true
                                     visible:                tool.visible
                                 }
-			    }
+
+                                QGCLabel {
+                                    text:       qsTr("Tank volume")
+                                    visible:    _tankVolume.visible
+                                }
+                                FactTextField {
+                                    Layout.preferredWidth:  _comboFieldWidth
+                                    id:                     tankVolume
+                                    visible:                fact.visible
+                                    fact:                   _tankVolume
+                                }
+
+                                QGCLabel {
+                                    id:         tankAction
+                                    text:       qsTr("Tank level warning")
+                                    visible:    _tankAction.visible
+                                }
+                                FactComboBox {
+                                    Layout.preferredWidth:  _comboFieldWidth
+                                    fact:                   _tankAction
+                                    indexModel:             true
+                                    visible:                tankAction.visible
+                                }
+                }
 			}
 		    }
 

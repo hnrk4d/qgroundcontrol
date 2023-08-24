@@ -47,9 +47,6 @@ public:
     DEFINE_SETTINGFACT(dsmFilePath) //FLKTR
     DEFINE_SETTINGFACT(dsmSampleDistance) //FLKTR
     DEFINE_SETTINGFACT(dsmSampleSize) //FLKTR
-    DEFINE_SETTINGFACT(tankSize) //FLKTR
-    DEFINE_SETTINGFACT(tankAction) //FLKTR
-    DEFINE_SETTINGFACT(tankEmptyWarning) //FLKTR
     DEFINE_SETTINGFACT(androidSaveToSDCard)
     DEFINE_SETTINGFACT(useChecklist)
     DEFINE_SETTINGFACT(enforceChecklist)
