@@ -581,20 +581,21 @@ Rectangle {
                                 }
 
                                 QGCLabel {
+                                    id:         volume
                                     text:       qsTr("Tank volume")
-                                    visible:    _tankVolume.visible
+                                    visible:    (_tool.value===0)?false:_tankVolume.visible
                                 }
                                 FactTextField {
                                     Layout.preferredWidth:  _comboFieldWidth
                                     id:                     tankVolume
-                                    visible:                fact.visible
+                                    visible:                volume.visible
                                     fact:                   _tankVolume
                                 }
 
                                 QGCLabel {
                                     id:         tankAction
                                     text:       qsTr("Tank level warning")
-                                    visible:    _tankAction.visible
+                                    visible:    (_tool.value===0)?false:_tankAction.visible
                                 }
                                 FactComboBox {
                                     Layout.preferredWidth:  _comboFieldWidth
