@@ -9,6 +9,7 @@ import QGroundControl               1.0
 import QGroundControl.ScreenTools   1.0
 import QGroundControl.Vehicle       1.0
 import QGroundControl.Controls      1.0
+import QGroundControl.FactSystem    1.0
 import QGroundControl.FactControls  1.0
 import QGroundControl.Palette       1.0
 import QGroundControl.FlightMap     1.0
@@ -28,6 +29,8 @@ TransectStyleComplexItemEditor {
 
     property real   _margin:        ScreenTools.defaultFontPixelWidth / 2
     property var    _missionItem:   missionItem
+
+    property Fact _tool: QGroundControl.settingsManager.toolSettings.tool
 
     Component {
         id: _transectValuesComponent
@@ -60,7 +63,7 @@ TransectStyleComplexItemEditor {
                     var l = []
                     for(var i=0; i<SpreadingUnitComponentController.librarySize; i++) {
                         var text = SpreadingUnitComponentController.libraryEntryWeightedGritName(i)+" ["+
-                                SpreadingUnitComponentController.gritPerSec(i, 2)+" g/sec]"
+                                SpreadingUnitComponentController.gritPerSec(i, 2)+" kg/sec]"
                         l.push(text)
                     }
                     return l
@@ -83,6 +86,8 @@ TransectStyleComplexItemEditor {
                     _missionItem.cameraCalc.adjustedFootprintFrontal.value = SpreadingUnitComponentController.libraryDosingShaft(currentIndex)
                     _missionItem.cameraCalc.imageDensity.value = SpreadingUnitComponentController.libraryRotaryDisk(currentIndex)
                 }
+
+                visible: _tool.value !== 0
             }
 
             FactCheckBox {
