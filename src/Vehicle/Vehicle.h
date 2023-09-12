@@ -1002,6 +1002,9 @@ signals:
 
     void sensorsParametersResetAck      (bool success);
 
+    void toolDataChanged                (int val1, int val2);
+    void toolIdChanged                  (int toolId);
+
 private slots:
     void _mavlinkMessageReceived            (LinkInterface* link, mavlink_message_t message);
     void _sendMessageMultipleNext           ();
@@ -1461,6 +1464,10 @@ private:
     QTimer                      _updateDoSetHomeTerrainTimer;
     TerrainAtCoordinateQuery*   _currentDoSetHomeTerrainAtCoordinateQuery = nullptr;
     QGeoCoordinate              _doSetHomeCoordinate;
+
+    int _tool_id =0xffff;
+    int _tool_data1 =-1;
+    int _tool_data2 =-1;
 };
 
 Q_DECLARE_METATYPE(Vehicle::MavCmdResultFailureCode_t)

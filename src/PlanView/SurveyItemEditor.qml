@@ -76,9 +76,9 @@ TransectStyleComplexItemEditor {
                 Layout.columnSpan:  2
                 function createModel() {
                     var l = []
-                    for(var i=0; i<SpreadingUnitComponentController.librarySize; i++) {
-                        var text = SpreadingUnitComponentController.libraryEntryWeightedGritName(i)+" ["+
-                                SpreadingUnitComponentController.gritPerSec(i, 2)+" kg/sec]"
+                    for(var i=0; i<SpreadingController.librarySize; i++) {
+                        var text = SpreadingController.libraryEntryWeightedGritName(i)+" ["+
+                                SpreadingController.gritPerSec(i, 2)+" kg/sec]"
                         l.push(text)
                     }
                     return l
@@ -87,23 +87,67 @@ TransectStyleComplexItemEditor {
                     //each time the index changes we want to update the motor percentage setting of the
                     //_missionItem. Remember: we reinterprete the camera setting for footprint distance as
                     //actuator setting for motors. The user still can overwrite the motor setting if he/she wants.
-                    _missionItem.cameraCalc.adjustedFootprintFrontal.value = SpreadingUnitComponentController.libraryDosingShaft(currentIndex)
-                    _missionItem.cameraCalc.imageDensity.value = SpreadingUnitComponentController.libraryRotaryDisk(currentIndex)
+                    if(_tool.value === 1) {
+                        _missionItem.cameraCalc.adjustedFootprintFrontal.value = SpreadingController.libraryDosingShaft(currentIndex)
+                        _missionItem.cameraCalc.imageDensity.value = SpreadingController.libraryRotaryDisk(currentIndex)
+                    }
                 }
 
-                model : {SpreadingUnitComponentController.librarySize; createModel()} //enforce dependency
-                currentIndex: SpreadingUnitComponentController.currentIndex
+                model : {SpreadingController.librarySize; createModel()} //enforce dependency
+                currentIndex: SpreadingController.currentIndex
                 onActivated: {
-                    SpreadingUnitComponentController.currentIndex = currentIndex
+                    SpreadingController.currentIndex = currentIndex
                 }
 
                 Component.onCompleted: {
-                    SpreadingUnitComponentController.currentIndexChanged.connect(indexHasChangedHandler)
-                    _missionItem.cameraCalc.adjustedFootprintFrontal.value = SpreadingUnitComponentController.libraryDosingShaft(currentIndex)
-                    _missionItem.cameraCalc.imageDensity.value = SpreadingUnitComponentController.libraryRotaryDisk(currentIndex)
+                    SpreadingController.currentIndexChanged.connect(indexHasChangedHandler)
+                    if(_tool.value === 1) {
+                        _missionItem.cameraCalc.adjustedFootprintFrontal.value = SpreadingController.libraryDosingShaft(currentIndex)
+                        _missionItem.cameraCalc.imageDensity.value = SpreadingController.libraryRotaryDisk(currentIndex)
+                    }
                 }
 
-                visible: _tool.value !== 0
+                visible: _tool.value === 1
+            }
+
+            QGCComboBox { //FLKTR
+                Layout.fillWidth:   true
+                Layout.columnSpan:  2
+                function createModel() {
+                    var l = []
+                    for(var i=0; i<SprayingController.librarySize; i++) {
+                        var text = SprayingController.libraryChemical(i)+" ["+
+                                SprayingController.libraryPumpValue(i)+" %]"
+                        l.push(text)
+                    }
+                    return l
+                }
+                function indexHasChangedHandler() {
+                    //each time the index changes we want to update the motor percentage setting of the
+                    //_missionItem. Remember: we reinterprete the camera setting for footprint distance as
+                    //actuator setting for motors. The user still can overwrite the motor setting if he/she wants.
+                    if(_tool.value === 2) {
+                         _missionItem.cameraCalc.adjustedFootprintFrontal.value = SprayingController.libraryPumpValue(currentIndex)
+                    }
+                }
+
+                model : {
+                    SprayingController.librarySize;
+                    createModel()
+                } //enforce dependency
+                currentIndex: SprayingController.currentIndex
+                onActivated: {
+                    SprayingController.currentIndex = currentIndex
+                }
+
+                Component.onCompleted: {
+                    SprayingController.currentIndexChanged.connect(indexHasChangedHandler)
+                    if(_tool.value === 2) {
+                        _missionItem.cameraCalc.adjustedFootprintFrontal.value = SprayingController.libraryPumpValue(SprayingController.currentIndex)
+                    }
+                }
+
+                visible: _tool.value === 2
             }
 
             QGCOptionsComboBox {

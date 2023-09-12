@@ -20,6 +20,8 @@ Rectangle {
     color:      qgcPal.windowShadeDark
     radius:     _radius
 
+    property Fact _tool: QGroundControl.settingsManager.toolSettings.tool
+
     property bool   transectAreaDefinitionComplete: true
     property string transectAreaDefinitionHelp:     _internalError
     property string transectValuesHeaderName:       _internalError
@@ -100,8 +102,8 @@ Rectangle {
                     cameraCalc:                     _missionItem.cameraCalc
                     vehicleFlightIsFrontal:         true
                     distanceToSurfaceLabel:         qsTr("Altitude")
-                    frontalDistanceLabel:           qsTr("Dosing") //FLKTR: qsTr("Trigger Dist")
-                    flktrRotaryDiskLabel:           qsTr("Rotary") //FLKTR
+                    flktrToolLabel1:                (_tool.value === 1)?qsTr("Dosing"):qsTr("Pump") //FLKTR: qsTr("Trigger Dist")
+                    flktrToolLabel2:                (_tool.value === 1)?qsTr("Rotary"):qsTr("Unused") //FLKTR
                     sideDistanceLabel:              qsTr("Spacing")
                 }
 

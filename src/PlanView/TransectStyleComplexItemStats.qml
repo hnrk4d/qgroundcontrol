@@ -21,22 +21,26 @@ Grid {
     property Fact _tool: QGroundControl.settingsManager.toolSettings.tool
 
     //general
-    property real area : missionItem.coveredArea //is in m^2
+    property real area : missionItem.coveredArea // in m^2
     property real dist : missionItem.actuatorDistance
-    property real v : missionItem.vehicleSpeed
-    property real va : v*missionItem.corridorWidth //application speed (m^2/sec)
+    property real v    : missionItem.vehicleSpeed // in m/sec
+    property real va   : v*missionItem.cameraCalc.adjustedFootprintSide.value// application speed (in m^2/sec)
 
     //related to spreading
-    property real dist_weight : (_tool.value === 1 && v>0 && SpreadingUnitComponentController.currentIndex >= 0)?dist*SpreadingUnitComponentController.libraryEntryWeightedGrit(SpreadingUnitComponentController.currentIndex)/v:0
-    property real lib_weight : (_tool.value === 1 && SpreadingUnitComponentController.currentIndex >= 0)?SpreadingUnitComponentController.libraryEntryWeightedGrit(SpreadingUnitComponentController.currentIndex):0
-    property real scaling :  (_tool.value === 1 && SpreadingUnitComponentController.currentIndex >= 0)?missionItem.cameraCalc.adjustedFootprintFrontal.value/SpreadingUnitComponentController.libraryDosingShaft(SpreadingUnitComponentController.currentIndex):0
-    property real scaled_dist_weight : dist_weight*scaling
-    property real scaled_lib_weight : lib_weight*scaling
+    property real lib_weight : (_tool.value === 1 && SpreadingController.currentIndex >= 0)?SpreadingController.libraryEntryWeightedGrit(SpreadingController.currentIndex):0
+    property real dist_weight : (_tool.value === 1 && v>0 && SpreadingController.currentIndex >= 0)?dist*lib_weight/v:0
+    property real scaling : (_tool.value === 1 && SpreadingController.currentIndex >= 0)?missionItem.cameraCalc.adjustedFootprintFrontal.value/SpreadingController.libraryDosingShaft(SpreadingController.currentIndex):0
+    property real scaled_dist_weight : dist_weight * scaling
+    property real scaled_lib_weight : lib_weight * scaling
     property real kg_per_ha : (_tool.value === 1 && va>0)?scaled_lib_weight*10000/va:0
 
     //related to spraying
-    property real scaled_dist_volume : 0
-    property real l_per_ha : 0
+    property real volume_per_sec : (_tool.value === 2 && SprayingController.currentIndex >= 0)?SprayingController.libraryVolume(SprayingController.currentIndex)/SprayingController.librarySec(SprayingController.currentIndex):0
+    property real dist_volume : (_tool.value === 2 && v>0 && SprayingController.currentIndex >= 0)?dist*volume_per_sec/v:0
+    property real scaling1 : (_tool.value === 2 && SprayingController.currentIndex >= 0)?missionItem.cameraCalc.adjustedFootprintFrontal.value/SprayingController.libraryPumpValue(SprayingController.currentIndex):0
+    property real scaled_dist_volume : dist_volume * scaling1
+    property real scaled_volume_per_sec : volume_per_sec * scaling1
+    property real l_per_ha : (_tool.value === 2 && va>0)?scaled_volume_per_sec*10000/va:0
 
     QGCLabel {
         id: weightL

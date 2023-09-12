@@ -1423,6 +1423,17 @@ void Vehicle::_handleSysStatus(mavlink_message_t& message)
         _onboardControlSensorsUnhealthy = newSensorsUnhealthy;
         emit sensorsUnhealthyBitsChanged(_onboardControlSensorsUnhealthy);
     }
+
+    if(sysStatus.tool_id != _tool_id) {
+        _tool_id = sysStatus.tool_id;
+        emit toolIdChanged(_tool_id);
+    }
+
+    if(sysStatus.tool_data1 != _tool_data1 || sysStatus.tool_data2 != _tool_data2) {
+        _tool_data1 = sysStatus.tool_data1;
+        _tool_data2 = sysStatus.tool_data2;
+        emit toolDataChanged(_tool_data1, _tool_data2);
+    }
 }
 
 void Vehicle::_handleBatteryStatus(mavlink_message_t& message)

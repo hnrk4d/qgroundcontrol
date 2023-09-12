@@ -5,6 +5,7 @@ import QtQuick.Layouts  1.2
 import QGroundControl                   1.0
 import QGroundControl.ScreenTools       1.0
 import QGroundControl.Controls          1.0
+import QGroundControl.FactSystem        1.0
 import QGroundControl.FactControls      1.0
 import QGroundControl.Palette           1.0
 
@@ -12,12 +13,14 @@ import QGroundControl.Palette           1.0
 Column {
     spacing: _margin
 
+    property Fact _tool: QGroundControl.settingsManager.toolSettings.tool
+
     property var    cameraCalc
     property bool   vehicleFlightIsFrontal:         true
     property string distanceToSurfaceLabel
-    property string frontalDistanceLabel
+    property string flktrToolLabel1
     property string sideDistanceLabel
-    property string flktrRotaryDiskLabel //FLKTR
+    property string flktrToolLabel2 //FLKTR
 
     property real   _margin:            ScreenTools.defaultFontPixelWidth / 2
     property real   _fieldWidth:        ScreenTools.defaultFontPixelWidth * 10.5
@@ -129,16 +132,24 @@ Column {
             Layout.fillWidth:           true
         }
 
-        QGCLabel { text: frontalDistanceLabel }
+        QGCLabel {
+            text: flktrToolLabel1
+            visible: _tool.value !== 0
+        } //FLKTR
         FactTextField {
             Layout.fillWidth:   true
             fact:               cameraCalc.adjustedFootprintFrontal
+            visible: _tool.value !== 0
         }
 
-        QGCLabel { text: flktrRotaryDiskLabel } //FLKTR
+        QGCLabel {
+            text: flktrToolLabel2
+            visible: _tool.value === 1
+        } //FLKTR
         FactTextField {
             Layout.fillWidth:   true
             fact:               cameraCalc.imageDensity
+            visible: _tool.value === 1
         }
 
         QGCLabel { text: sideDistanceLabel }

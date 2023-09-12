@@ -1245,22 +1245,22 @@ void TransectStyleComplexItem::_appendCameraTriggerDistance(QList<MissionItem*>&
                                         true,                           // autoContinue
                                         false,                          // isCurrentItem
                                         missionItemParent);*/
-    float dosingShaft = _cameraCalc.adjustedFootprintFrontal()->rawValue().toFloat(); //value reinterpretation
+    float dosing_pump = _cameraCalc.adjustedFootprintFrontal()->rawValue().toFloat(); //value reinterpretation
     float rotaryDisk  = _cameraCalc.imageDensity()->rawValue().toFloat();
-    dosingShaft = qMax(0.0f, qMin(100.0f, dosingShaft));
-    dosingShaft = 2.0*dosingShaft/100.0f-1.0f;
-    dosingShaft=qMax(-1.0f, qMin(1.0f, dosingShaft));
+    dosing_pump = qMax(0.0f, qMin(100.0f, dosing_pump));
+    dosing_pump = 2.0*dosing_pump/100.0f-1.0f;
+    dosing_pump=qMax(-1.0f, qMin(1.0f, dosing_pump));
     rotaryDisk  = qMax(0.0f, qMin(100.0f, rotaryDisk));
     rotaryDisk = 2.0*rotaryDisk/100.0f-1.0f;
     rotaryDisk=qMax(-1.0f, qMin(1.0f, rotaryDisk));
-    qDebug() << "ds" << dosingShaft << ", rd" << rotaryDisk;
+    //qDebug() << "ds" << dosing_pump << ", rd" << rotaryDisk;
     MissionItem* item = new MissionItem(seqNum++,
                                         MAV_CMD_DO_SET_ACTUATOR,
                                         MAV_FRAME_MISSION,
-                                        dosingShaft, //param1 -> PWM AUX1
-                                        rotaryDisk,  //param2 -> PWM AUX2
-                                        1,  //param3 -> PWM AUX3
-                                        0, //param4 unused
+                                        dosing_pump, //param1 -> PWM AUX1, spreading
+                                        rotaryDisk,  //param2 -> PWM AUX2, spreading
+                                        1,  //param3 -> PWM AUX3 for compatibility reasons
+                                        dosing_pump, //param4 -> AUX4, pump, spraying
                                         0, //param5 unused
                                         0, //param6 unused
                                         0, //param7 unused
