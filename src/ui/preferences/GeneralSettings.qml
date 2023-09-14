@@ -603,11 +603,95 @@ Rectangle {
                                     indexModel:             true
                                     visible:                tankAction.visible
                                 }
-                }
-			}
-		    }
 
-		    Item { width: 1; height: _margins; visible: unitsSectionLabel.visible }
+                                QGCLabel {
+                                    id :library
+                                    text: qsTr("Library")
+                                    visible: _tool.value !== 0
+                                }
+                                RowLayout {
+                                    QGCComboBox {
+                                        Layout.preferredWidth:  _comboFieldWidth
+                                        function createModel() {
+                                            var l = []
+                                            for(var i=0; i<SpreadingController.librarySize; i++) {
+                                                var text = SpreadingController.libraryEntryWeightedGritName(i)+" ["+
+                                                        SpreadingController.gritPerSec(i, 2)+" kg/sec]"
+                                                l.push(text)
+                                            }
+                                            return l
+                                        }
+
+                                        model : {SpreadingController.librarySize; createModel()} //enforce dependency
+                                        currentIndex: SpreadingController.currentIndex
+                                        onActivated: {
+                                            SpreadingController.currentIndex = currentIndex
+                                        }
+
+                                        visible: _tool.value === 1
+                                    }
+
+                                    QGCComboBox {
+                                        Layout.preferredWidth:  _comboFieldWidth
+                                        function createModel() {
+                                            var l = []
+                                            for(var i=0; i<SprayingController.librarySize; i++) {
+                                                var text = SprayingController.libraryChemical(i)+" ["+
+                                                        SprayingController.libraryPumpValue(i)+" %]"
+                                                l.push(text)
+                                            }
+                                            return l
+                                        }
+
+                                        model : {
+                                            SprayingController.librarySize;
+                                            createModel()
+                                        } //enforce dependency
+                                        currentIndex: SprayingController.currentIndex
+                                        onActivated: {
+                                            SprayingController.currentIndex = currentIndex
+                                        }
+
+                                        visible: _tool.value === 2
+                                    }
+                                    QGCButton {
+                                        text:       qsTr("Import")
+                                        onClicked:  jsonImportDialog.openForLoad()
+                                        QGCFileDialog {
+                                            id:                 jsonImportDialog
+                                            title:              qsTr("Import Library")
+                                            nameFilters:        [qsTr("Library Files (*.json)"), qsTr("All Files (*)")]
+                                            selectExisting:     true
+                                            onAcceptedForLoad: {
+                                                if(_tool.value === 1) SpreadingController.importJSON(file)
+                                                else if(_tool.value === 2) SprayingController.importJSON(file)
+                                                close()
+                                            }
+                                        }
+                                        visible: _tool.value !== 0
+                                    }
+                                    QGCButton {
+                                        text:       qsTr("Export")
+                                        onClicked:  jsonExportDialog.openForLoad()
+                                        QGCFileDialog {
+                                            id:                 jsonExportDialog
+                                            title:              qsTr("Export Library")
+                                            nameFilters:        [qsTr("Library Files (*.json)"), qsTr("All Files (*)")]
+                                            selectExisting:     false
+                                            onAcceptedForSave: {
+                                                if(_tool.value === 1) SpreadingController.exportJSON(file)
+                                                else if(_tool.value === 2) SprayingController.exportJSON(file)
+                                                close()
+                                            }
+                                        }
+                                        visible: _tool.value !== 0
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Item { width: 1; height: _margins; visible: unitsSectionLabel.visible }
                     QGCLabel {
                         id:         unitsSectionLabel
                         text:       qsTr("Units")
