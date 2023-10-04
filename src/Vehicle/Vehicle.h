@@ -257,6 +257,9 @@ public:
     Q_PROPERTY(double               loadProgress                READ loadProgress                                                   NOTIFY loadProgressChanged)
     Q_PROPERTY(bool                 initialConnectComplete      READ isInitialConnectComplete                                       NOTIFY initialConnectComplete)
 
+    //Tank (aka tool+tank) weight
+    Q_PROPERTY(qreal                tankWeight                  READ tankWeight                                                     NOTIFY tankWeightChanged)
+
     // The following properties relate to Orbit status
     Q_PROPERTY(bool             orbitActive     READ orbitActive        NOTIFY orbitActiveChanged)
     Q_PROPERTY(QGCMapCircle*    orbitMapCircle  READ orbitMapCircle     CONSTANT)
@@ -648,6 +651,7 @@ public:
     bool            requiresGpsFix              () const { return static_cast<bool>(_onboardControlSensorsPresent & SysStatusSensorGPS); }
     bool            hilMode                     () const { return _base_mode & MAV_MODE_FLAG_HIL_ENABLED; }
     Actuators*      actuators                   () const { return _actuators; }
+    qreal           tankWeight                  () const{ return _tankWeight; } //in kg, negative values indicate the unavailibility of the sensor value
 
     /// Get the maximum MAVLink protocol version supported
     /// @return the maximum version
@@ -961,6 +965,8 @@ signals:
     void gitHashChanged                 (QString hash);
     void vehicleUIDChanged              ();
     void loadProgressChanged            (float value);
+
+    void tankWeightChanged             (qreal value);
 
     /// New RC channel values coming from RC_CHANNELS message
     ///     @param channelCount Number of available channels, cMaxRcChannels max
@@ -1465,9 +1471,11 @@ private:
     TerrainAtCoordinateQuery*   _currentDoSetHomeTerrainAtCoordinateQuery = nullptr;
     QGeoCoordinate              _doSetHomeCoordinate;
 
-    int _tool_id =0xffff;
-    int _tool_data1 =-1;
-    int _tool_data2 =-1;
+    int _tool_id = 0xffff;
+    int _tool_data1 = -1;
+    int _tool_data2 = -1;
+    qreal _tankWeight = -1.0;
+    qreal _mapToWeight(int aRawValue); //map tool value to weight
 };
 
 Q_DECLARE_METATYPE(Vehicle::MavCmdResultFailureCode_t)
