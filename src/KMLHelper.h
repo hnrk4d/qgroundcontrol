@@ -23,6 +23,7 @@ class KMLHelper : public QObject
 public:
     static ShapeFileHelper::ShapeType determineShapeType(const QString& kmlFile, QString& errorString);
     static bool loadPolygonFromFile(const QString& kmlFile, QList<QGeoCoordinate>& vertices, QString& errorString);
+    static bool loadPolygonsFromFile(const QString& kmlFile, QList<QList<QGeoCoordinate> >& vertices, QString& errorString); //TODO: currently this function returns only the first polygon!
     static bool loadPolylineFromFile(const QString& kmlFile, QList<QGeoCoordinate>& coords, QString& errorString);
 
 private:

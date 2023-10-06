@@ -1536,3 +1536,11 @@ double TransectStyleComplexItem::maxAMSLAltitude(void) const
 bool TransectStyleComplexItem::_useDMSFileForTerrainQueries() {
     return qgcApp()->toolbox()->dsmFile() && qgcApp()->toolbox()->dsmFile()->isOpen();
 }
+
+bool TransectStyleComplexItem::loadRateFile(const QString& file) {
+    bool res = QGCMapPolygon::createFromKMLOrSHPFile(_rateAreaPolygons, file);
+    if(res) {
+        emit rateAreaPolygonsChanged();
+    }
+    return res;
+}

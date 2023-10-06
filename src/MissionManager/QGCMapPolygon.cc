@@ -481,6 +481,28 @@ void QGCMapPolygon::offset(double distance)
     _endResetIfNotActive();
 }
 
+bool QGCMapPolygon::createFromKMLOrSHPFile(QList<QGCMapPolygon*> &polygons, const QString& file) {
+    polygons.clear();
+    QList<QList<QGeoCoordinate> > rgCoords;
+    QString errorString;
+    if (!ShapeFileHelper::loadPolygonsFromFile(file, rgCoords, errorString)) {
+        qgcApp()->showAppMessage(errorString);
+        return false;
+    }
+    if(!errorString.isEmpty()) {
+        qgcApp()->showAppMessage(errorString);
+    }
+    for(auto& p : rgCoords) {
+        QGCMapPolygon *poly = new QGCMapPolygon;
+        poly->_beginResetIfNotActive();
+        poly->clear();
+        poly->appendVertices(p);
+        poly->_endResetIfNotActive();
+        polygons.append(poly);
+    }
+    return true;
+}
+
 bool QGCMapPolygon::loadKMLOrSHPFile(const QString& file)
 {
     QString errorString;

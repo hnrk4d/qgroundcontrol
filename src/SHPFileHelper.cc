@@ -134,7 +134,7 @@ bool SHPFileHelper::loadPolygonFromFile(const QString& shpFile, QList<QGeoCoordi
         goto Error;
     }
 
-    shpObject = SHPReadObject(shpHandle, 0);
+    shpObject = SHPReadObject(shpHandle, 0); //reads only the first polygon!
     if (shpObject->nParts != 1) {
         errorString = QString(_errorPrefix).arg(tr("Only single part polygons are supported."));
         goto Error;
@@ -178,4 +178,80 @@ Error:
         SHPClose(shpHandle);
     }
     return errorString.isEmpty();
+}
+
+bool SHPFileHelper::loadPolygonsFromFile(const QString& shpFile, QList<QList<QGeoCoordinate> >& vertices, QString& errorString) {
+    int         utmZone = 0;
+    bool        utmSouthernHemisphere;
+    double      vertexFilterMeters = 5;
+    SHPHandle   shpHandle = Q_NULLPTR;
+    SHPObject*  shpObject = Q_NULLPTR;
+
+    errorString.clear();
+    vertices.clear();
+
+    shpHandle = SHPFileHelper::_loadShape(shpFile, &utmZone, &utmSouthernHemisphere, errorString);
+    if (!errorString.isEmpty()) {
+        goto Error;
+    }
+
+    int cEntities, shapeType;
+    SHPGetInfo(shpHandle, &cEntities, &shapeType, Q_NULLPTR /* padfMinBound */, Q_NULLPTR /* padfMaxBound */);
+    if (shapeType != SHPT_POLYGON) {
+        errorString = QString(_errorPrefix).arg(tr("File does not contain a polygon."));
+        goto Error;
+    }
+
+    for(int i=0; i<shpHandle->nRecords; ++i) {
+        QList<QGeoCoordinate> coords;
+        shpObject = SHPReadObject(shpHandle, i);
+        if (shpObject->nParts != 1) {
+            if(!errorString.isEmpty()) errorString.append(" ");
+            errorString.append(QString::number(i)+". SHP record: ");
+            errorString.append(QString(_errorPrefix).arg(tr("Only single part polygons are supported.")));
+            continue; //let's try the next polygon
+        }
+
+        for (int i=0; i<shpObject->nVertices; i++) {
+            QGeoCoordinate coord;
+            if (!utmZone || !convertUTMToGeo(shpObject->padfX[i], shpObject->padfY[i], utmZone, utmSouthernHemisphere, coord)) {
+                coord.setLatitude(shpObject->padfY[i]);
+                coord.setLongitude(shpObject->padfX[i]);
+            }
+            coords.append(coord);
+        }
+
+        // Filter last vertex such that it differs from first
+        {
+            QGeoCoordinate firstVertex = coords[0];
+
+            while (coords.count() > 3 && coords.last().distanceTo(firstVertex) < vertexFilterMeters) {
+                coords.removeLast();
+            }
+        }
+
+        // Filter vertex distances to be larger than 1 meter apart
+        {
+            int i = 0;
+            while (i < coords.count() - 2) {
+                if (coords[i].distanceTo(coords[i+1]) < vertexFilterMeters) {
+                    coords.removeAt(i+1);
+                } else {
+                    i++;
+                }
+            }
+        }
+        vertices.append(coords);
+    }
+
+Error:
+    if (shpObject) {
+        SHPDestroyObject(shpObject);
+    }
+    if (shpHandle) {
+        SHPClose(shpHandle);
+    }
+    bool res = errorString.isEmpty();
+    if(!res && !vertices.empty()) res = true;
+    return res;
 }

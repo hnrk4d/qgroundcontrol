@@ -69,6 +69,8 @@ public:
     /// @return true: success
     Q_INVOKABLE bool loadKMLOrSHPFile(const QString& file);
 
+    static bool createFromKMLOrSHPFile(QList<QGCMapPolygon*> &polygons, const QString& file);
+
     /// Returns the path in a list of QGeoCoordinate's format
     QList<QGeoCoordinate> coordinateList(void) const;
 

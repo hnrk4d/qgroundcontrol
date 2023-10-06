@@ -27,6 +27,7 @@ class SHPFileHelper : public QObject
 public:
     static ShapeFileHelper::ShapeType determineShapeType(const QString& shpFile, QString& errorString);
     static bool loadPolygonFromFile(const QString& shpFile, QList<QGeoCoordinate>& vertices, QString& errorString);
+    static bool loadPolygonsFromFile(const QString& shpFile, QList<QList<QGeoCoordinate> >& vertices, QString& errorString);
 
 private:
     static bool         _validateSHPFiles(const QString& shpFile, int* utmZone, bool* utmSouthernHemisphere, QString& errorString);

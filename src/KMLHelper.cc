@@ -62,6 +62,14 @@ ShapeFileHelper::ShapeType KMLHelper::determineShapeType(const QString& kmlFile,
     return ShapeFileHelper::Error;
 }
 
+//TODO: currently this function returns only the first polygon!
+bool KMLHelper::loadPolygonsFromFile(const QString& kmlFile, QList<QList<QGeoCoordinate> >& vertices, QString& errorString) {
+    QList<QGeoCoordinate> coords;
+    bool res = loadPolygonFromFile(kmlFile, coords, errorString);
+    vertices.append(coords);
+    return res;
+}
+
 bool KMLHelper::loadPolygonFromFile(const QString& kmlFile, QList<QGeoCoordinate>& vertices, QString& errorString)
 {
     errorString.clear();

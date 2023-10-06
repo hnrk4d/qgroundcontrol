@@ -31,6 +31,7 @@ public:
     TransectStyleComplexItem(PlanMasterController* masterController, bool flyView, QString settignsGroup);
 
     Q_PROPERTY(QGCMapPolygon*   surveyAreaPolygon           READ surveyAreaPolygon                                  CONSTANT)
+    Q_PROPERTY(QList<QGCMapPolygon*> rateAreaPolygons       READ rateAreaPolygons                                   NOTIFY rateAreaPolygonsChanged)
     Q_PROPERTY(CameraCalc*      cameraCalc                  READ cameraCalc                                         CONSTANT)
     Q_PROPERTY(Fact*            turnAroundDistance          READ turnAroundDistance                                 CONSTANT)
     Q_PROPERTY(Fact*            cameraTriggerInTurnAround   READ cameraTriggerInTurnAround                          CONSTANT)
@@ -50,6 +51,7 @@ public:
     Q_PROPERTY(Fact*            terrainAdjustMaxClimbRate   READ terrainAdjustMaxClimbRate                          CONSTANT)
 
     QGCMapPolygon*  surveyAreaPolygon   (void) { return &_surveyAreaPolygon; }
+    QList<QGCMapPolygon*> rateAreaPolygons(void) { return _rateAreaPolygons; }
     CameraCalc*     cameraCalc          (void) { return &_cameraCalc; }
     QVariantList    visualTransectPoints(void) { return _visualTransectPoints; }
 
@@ -115,6 +117,8 @@ public:
     double              minAMSLAltitude             (void) const final;
     double              maxAMSLAltitude             (void) const final;
 
+    Q_INVOKABLE bool loadRateFile(const QString& file); //load application rate file
+
     static const char* turnAroundDistanceName;
     static const char* turnAroundDistanceMultiRotorName;
     static const char* cameraTriggerInTurnAroundName;
@@ -132,6 +136,7 @@ signals:
     void actuatorDistanceChanged        (void); //FLKTR
     void _updateFlightPathSegmentsSignal(void);
     void vehicleSpeedChanged(); //FLKTR
+    void rateAreaPolygonsChanged();
 
 protected slots:
     void _setDirty                          (void);
@@ -165,6 +170,7 @@ protected:
     QGeoCoordinate      _coordinate;
     QGeoCoordinate      _exitCoordinate;
     QGCMapPolygon       _surveyAreaPolygon;
+    QList<QGCMapPolygon*> _rateAreaPolygons;
 
     enum CoordType {
         CoordTypeInterior,              ///< Interior waypoint for flight path only (example: interior corridor point)

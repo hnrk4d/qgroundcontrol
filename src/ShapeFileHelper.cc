@@ -61,6 +61,24 @@ ShapeFileHelper::ShapeType ShapeFileHelper::determineShapeType(const QString& fi
     return shapeType;
 }
 
+bool ShapeFileHelper::loadPolygonsFromFile(const QString& file, QList<QList<QGeoCoordinate> >& vertices, QString& errorString) {
+    bool success = false;
+
+    errorString.clear();
+    vertices.clear();
+
+    bool fileIsKML = _fileIsKML(file, errorString);
+    if (errorString.isEmpty()) {
+        if (fileIsKML) {
+            success = KMLHelper::loadPolygonsFromFile(file, vertices, errorString);
+        } else {
+            success = SHPFileHelper::loadPolygonsFromFile(file, vertices, errorString);
+        }
+    }
+
+    return success;
+}
+
 bool ShapeFileHelper::loadPolygonFromFile(const QString& file, QList<QGeoCoordinate>& vertices, QString& errorString)
 {
     bool success = false;

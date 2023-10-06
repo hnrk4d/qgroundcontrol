@@ -39,6 +39,7 @@ public:
 
     static ShapeType determineShapeType(const QString& file, QString& errorString);
     static bool loadPolygonFromFile(const QString& file, QList<QGeoCoordinate>& vertices, QString& errorString);
+    static bool loadPolygonsFromFile(const QString& file, QList<QList<QGeoCoordinate> >& vertices, QString& errorString);
     static bool loadPolylineFromFile(const QString& file, QList<QGeoCoordinate>& coords, QString& errorString);
 
 private:

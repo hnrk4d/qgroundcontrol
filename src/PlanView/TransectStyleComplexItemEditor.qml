@@ -55,6 +55,16 @@ Rectangle {
     function polygonAdjustStarted() { }
     function polygonAdjustFinished() { }
 
+    QGCFileDialog {
+        id:             rateLoadDialog
+        title:          qsTr("Select Application Rate File")
+        selectExisting: true
+        nameFilters:    [qsTr("Shape Files (*.shp)"), qsTr("All Files (*)")]
+        onAcceptedForLoad: {
+            _missionItem.loadRateFile(file);
+        }
+    }
+
     QGCPalette { id: qgcPal; colorGroupEnabled: true }
 
     ColumnLayout {
@@ -212,6 +222,13 @@ Rectangle {
                     Layout.fillWidth:   true
                     text:               qsTr("Save Settings As New Preset")
                     onClicked:          savePresetDialog.createObject(mainWindow).open()
+                }
+
+                QGCButton {
+                    Layout.alignment:   Qt.AlignCenter
+                    Layout.fillWidth:   true
+                    text:               qsTr("Load Application Rate File")
+                    onClicked:          rateLoadDialog.openForLoad()
                 }
 
                 SectionHeader {

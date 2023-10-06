@@ -28,6 +28,7 @@ Item {
 
     property var    _missionItem:               object
     property var    _mapPolygon:                object.surveyAreaPolygon
+    property var    _ratePolygons:              object.rateAreaPolygons
     property bool   _currentItem:               object.isCurrentItem
     property var    _transectPoints:            _missionItem.visualTransectPoints
     property int    _transectCount:             _transectPoints.length / (_hasTurnaround ? 4 : 2)
@@ -77,6 +78,24 @@ Item {
         interiorColor:      QGroundControl.globalPalette.surveyPolygonInterior
         altColor:           QGroundControl.globalPalette.surveyPolygonTerrainCollision
         interiorOpacity:    0.5 * _root.opacity
+    }
+
+    // Rate polygons
+    Repeater {
+        model : _ratePolygons
+        id    : ratePolygonVisuals
+
+        QGCMapPolygonVisuals {
+            mapControl:         map
+            mapPolygon:         modelData
+            interactive:        false
+            borderWidth:        1
+            borderColor:        "black"
+            z:                  QGroundControl.zOrderMapItems+1
+            interiorColor:      QGroundControl.globalPalette.colorBlue
+            altColor:           QGroundControl.globalPalette.colorOrange
+            interiorOpacity:    0.5 * _root.opacity
+        }
     }
 
     // Full set of transects lines. Shown when item is selected.
