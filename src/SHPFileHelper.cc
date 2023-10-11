@@ -115,7 +115,7 @@ bool SHPFileHelper::loadPolygonFromFile(const QString& shpFile, QList<QGeoCoordi
 {
     int         utmZone = 0;
     bool        utmSouthernHemisphere;
-    double      vertexFilterMeters = 5;
+    double      vertexFilterMeters = 0.1;
     SHPHandle   shpHandle = Q_NULLPTR;
     SHPObject*  shpObject = Q_NULLPTR;
 
@@ -159,7 +159,7 @@ bool SHPFileHelper::loadPolygonFromFile(const QString& shpFile, QList<QGeoCoordi
     }
 
     // Filter vertex distances to be larger than 1 meter apart
-    {
+    /*{
         int i = 0;
         while (i < vertices.count() - 2) {
             if (vertices[i].distanceTo(vertices[i+1]) < vertexFilterMeters) {
@@ -168,7 +168,7 @@ bool SHPFileHelper::loadPolygonFromFile(const QString& shpFile, QList<QGeoCoordi
                 i++;
             }
         }
-    }
+    }*/
 
 Error:
     if (shpObject) {
