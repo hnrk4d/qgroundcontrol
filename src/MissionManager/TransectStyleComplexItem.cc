@@ -1253,7 +1253,6 @@ void TransectStyleComplexItem::_appendCameraTriggerDistance(QList<MissionItem*>&
     rotaryDisk  = qMax(0.0f, qMin(100.0f, rotaryDisk));
     rotaryDisk = 2.0*rotaryDisk/100.0f-1.0f;
     rotaryDisk=qMax(-1.0f, qMin(1.0f, rotaryDisk));
-    //qDebug() << "ds" << dosing_pump << ", rd" << rotaryDisk;
     MissionItem* item = new MissionItem(seqNum++,
                                         MAV_CMD_DO_SET_ACTUATOR,
                                         MAV_FRAME_MISSION,

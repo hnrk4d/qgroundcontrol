@@ -10,6 +10,8 @@
 #include "JoystickMavCommand.h"
 #include "QGCLoggingCategory.h"
 #include "Vehicle.h"
+#include "QGCApplication.h"
+#include "CustomPlugin.h"
 #include <QJsonDocument>
 #include <QJsonParseError>
 #include <QJsonArray>
@@ -92,10 +94,22 @@ QList<JoystickMavCommand> JoystickMavCommand::load(const QString& jsonFilename)
     return result;
 }
 
-void JoystickMavCommand::send(Vehicle* vehicle)
-{
+void JoystickMavCommand::send(Vehicle* vehicle) {
+    float param1 = _param1;
+    float param2 = _param2;
+    float param3 = _param3;
+    float param4 = _param4;
+    float param5 = _param5;
+    float param6 = _param6;
+    float param7 = _param7;
+    if(_id == MAV_CMD_DO_SET_ACTUATOR) {
+        //for the tools we try to set the current library values instead of the defaults
+        CustomPlugin *p = dynamic_cast<CustomPlugin*>(qgcApp()->toolbox()->corePlugin());
+        if(p) p->modifyActuatorParams(param1, param2, param3, param4, param5, param6, param7);
+    }
+    //qDebug() << _id << _showError << param1 << param2 << param3 << param4 << param5 << param6 << param7;
     vehicle->sendMavCommand(vehicle->defaultComponentId(),
                             static_cast<MAV_CMD>(_id),
                             _showError,
-                            _param1, _param2, _param3, _param4, _param5, _param6, _param7);
+                            param1, param2, param3, param4, param5, param6, param7);
 }
