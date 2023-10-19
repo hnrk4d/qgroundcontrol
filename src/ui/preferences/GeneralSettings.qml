@@ -672,7 +672,7 @@ Rectangle {
                                     }
                                     QGCButton {
                                         text:       qsTr("Export")
-                                        onClicked:  jsonExportDialog.openForLoad()
+                                        onClicked:  jsonExportDialog.openForSave()
                                         QGCFileDialog {
                                             id:                 jsonExportDialog
                                             title:              qsTr("Export Library")
