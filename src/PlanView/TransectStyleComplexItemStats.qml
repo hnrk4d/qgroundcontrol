@@ -27,7 +27,7 @@ Grid {
     property real va   : v*missionItem.cameraCalc.adjustedFootprintSide.value// application speed (in m^2/sec)
 
     //related to spreading
-    property real lib_weight : (_tool.value === 1 && SpreadingController.currentIndex >= 0)?SpreadingController.libraryEntryWeightedGrit(SpreadingController.currentIndex):0
+    property real lib_weight : (_tool.value === 1 && SpreadingController.currentIndex >= 0)?SpreadingController.gritPerSec(SpreadingController.currentIndex):0
     property real dist_weight : (_tool.value === 1 && v>0 && SpreadingController.currentIndex >= 0)?dist*lib_weight/v:0
     property real scaling : (_tool.value === 1 && SpreadingController.currentIndex >= 0)?missionItem.cameraCalc.adjustedFootprintFrontal.value/SpreadingController.libraryDosingShaft(SpreadingController.currentIndex):0
     property real scaled_dist_weight : dist_weight * scaling
@@ -35,7 +35,7 @@ Grid {
     property real kg_per_ha : (_tool.value === 1 && va>0)?scaled_lib_weight*10000/va:0
 
     //related to spraying
-    property real volume_per_sec : (_tool.value === 2 && SprayingController.currentIndex >= 0)?SprayingController.libraryVolume(SprayingController.currentIndex)/SprayingController.librarySec(SprayingController.currentIndex):0
+    property real volume_per_sec : (_tool.value === 2 && SprayingController.currentIndex >= 0)?SprayingController.volPerSec(SprayingController.currentIndex):0
     property real dist_volume : (_tool.value === 2 && v>0 && SprayingController.currentIndex >= 0)?dist*volume_per_sec/v:0
     property real scaling1 : (_tool.value === 2 && SprayingController.currentIndex >= 0)?missionItem.cameraCalc.adjustedFootprintFrontal.value/SprayingController.libraryPumpValue(SprayingController.currentIndex):0
     property real scaled_dist_volume : dist_volume * scaling1
