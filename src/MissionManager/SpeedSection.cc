@@ -21,7 +21,7 @@ SpeedSection::SpeedSection(PlanMasterController* masterController, QObject* pare
     : Section               (masterController, parent)
     , _available            (false)
     , _dirty                (false)
-    , _specifyFlightSpeed   (true) //FLKTR
+    , _specifyFlightSpeed   (false) //FLKTR
     , _flightSpeedFact      (0, _flightSpeedName,   FactMetaData::valueTypeDouble)
 {
     if (_metaDataMap.isEmpty()) {

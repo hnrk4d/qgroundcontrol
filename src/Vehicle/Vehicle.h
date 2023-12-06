@@ -23,7 +23,6 @@
 #include "MAVLinkProtocol.h"
 #include "MAVLinkStreamConfig.h"
 #include "UASMessageHandler.h"
-#include "SettingsFact.h"
 #include "QGCMapCircle.h"
 #include "TerrainFactGroup.h"
 #include "SysStatusSensorInfo.h"
