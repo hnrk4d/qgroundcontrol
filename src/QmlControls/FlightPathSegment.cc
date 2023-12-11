@@ -80,7 +80,7 @@ void FlightPathSegment::setSpecialVisual(bool specialVisual)
 void FlightPathSegment::_sendTerrainPathQuery(void)
 {
     if (_queryTerrainData && _coord1.isValid() && _coord2.isValid()) {
-        qCDebug(FlightPathSegmentLog) << this << "_sendTerrainPathQuery";
+        //qCDebug(FlightPathSegmentLog) << this << "_sendTerrainPathQuery";
         // Clear any previous query
         if (_currentTerrainPathQuery) {
             // We are already waiting on another query. We don't care about those results any more.
@@ -105,7 +105,7 @@ void FlightPathSegment::_sendTerrainPathQuery(void)
             connect(_currentDSMFilePathQuery, &DSMFilePathRequest::terrainDataReady, this, &FlightPathSegment::_terrainDataReceived);
             connect(_currentDSMFilePathQuery, &DSMFilePathRequest::finished, _currentDSMFilePathQuery, &QObject::deleteLater);
             _currentDSMFilePathQuery->start();
-            qCDebug(FlightPathSegmentLog) << "DSM file requested for terrain (3)";
+            //qCDebug(FlightPathSegmentLog) << "DSM file requested for terrain (3)";
         }
         else {
             _currentTerrainPathQuery = new TerrainPathQuery(true /* autoDelete */);
@@ -117,7 +117,7 @@ void FlightPathSegment::_sendTerrainPathQuery(void)
 
 void FlightPathSegment::_terrainDataReceived(bool success, const TerrainPathQuery::PathHeightInfo_t& pathHeightInfo)
 {
-    qCDebug(FlightPathSegmentLog) << this << "_terrainDataReceived" << success << pathHeightInfo.heights.count();
+    //qCDebug(FlightPathSegmentLog) << this << "_terrainDataReceived" << success << pathHeightInfo.heights.count();
     if (success) {
         if (!QGC::fuzzyCompare(pathHeightInfo.distanceBetween, _distanceBetween)) {
             _distanceBetween = pathHeightInfo.distanceBetween;
@@ -191,7 +191,7 @@ void FlightPathSegment::_updateTerrainCollision(void)
         }
     }
 
-    qCDebug(FlightPathSegmentLog) << this << "_updateTerrainCollision new:old" << newTerrainCollision << _terrainCollision;
+    //qCDebug(FlightPathSegmentLog) << this << "_updateTerrainCollision new:old" << newTerrainCollision << _terrainCollision;
 
     if (newTerrainCollision != _terrainCollision) {
         _terrainCollision = newTerrainCollision;

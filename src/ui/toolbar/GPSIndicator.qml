@@ -97,7 +97,7 @@ Item {
             anchors.horizontalCenter:   hdopValue.horizontalCenter
             visible:                    _activeVehicle && !isNaN(_activeVehicle.gps.hdop.value)
             color:                      qgcPal.buttonText
-            text:                       _activeVehicle ? _activeVehicle.gps.count.valueString : ""
+            text:                       _activeVehicle ? ((_activeVehicle.gps.lock.value === 5 || _activeVehicle.gps.lock.value === 6) ? "RTK" : _activeVehicle.gps.count.valueString) : ""
         }
 
         QGCLabel {
@@ -106,6 +106,7 @@ Item {
             color:      qgcPal.buttonText
             text:       _activeVehicle ? _activeVehicle.gps.hdop.value.toFixed(1) : ""
         }
+
     }
 
     MouseArea {
