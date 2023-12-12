@@ -84,9 +84,18 @@ void ActuatorTest::setChannelTo(int index, float value)
     }
     qCDebug(ActuatorsConfigLog) << "setting actuator: index:" << index << "value:" << value;
 
-    _states[index].value = value;
-    _states[index].state = ActuatorState::State::Active;
-    _states[index].lastUpdated.start();
+    if(std::fabs(value- -1.0f) < std::numeric_limits<float>::epsilon()) {
+        //channel becomes inactive
+        if (_states[index].state == ActuatorState::State::Active) {
+            _states[index].value = -1.0f;
+            _states[index].state = ActuatorState::State::StopRequest;
+        }
+    }
+    else {
+        _states[index].value = value;
+        _states[index].state = ActuatorState::State::Active;
+        _states[index].lastUpdated.start();
+    }
     sendNext();
 }
 
@@ -174,18 +183,22 @@ void ActuatorTest::sendNext()
         _currentState = (_currentState + 1) % _states.size();
         Actuator* actuator = _actuators->value<Actuator*>(_currentState);
         if (_states[_currentState].state == ActuatorState::State::Active) {
-            sendMavlinkRequest(actuator->function(), _states[_currentState].value, 1.f);
+            sendMavlinkRequest(_currentState, actuator->function(), _states[_currentState].value, 2.f);
             break;
         } else if (_states[_currentState].state == ActuatorState::State::StopRequest) {
             _states[_currentState].state = ActuatorState::State::Stopping;
-            sendMavlinkRequest(actuator->function(), NAN, 0.f);
+            sendMavlinkRequest(_currentState, actuator->function(), NAN, 0.f);
             break;
         }
     }
 }
 
-void ActuatorTest::sendMavlinkRequest(int function, float value, float timeout)
+void ActuatorTest::sendMavlinkRequest(int actuatorState, int function, float value, float timeout)
 {
+    if(std::fabs(_states[actuatorState].sent_value-value) < std::numeric_limits<float>::epsilon() && _states[actuatorState].lastUpdated.elapsed() < 50) {
+        //nothing new within the given time period
+        return;
+    }
     qCDebug(ActuatorsConfigLog) << "Sending actuator test function:" << function << "value:" << value;
 
     // TODO: consider using a lower command timeout
@@ -202,5 +215,6 @@ void ActuatorTest::sendMavlinkRequest(int function, float value, float timeout)
             1000+function,                    // function
             0,                                // unused parameter
             0);
+    _states[actuatorState].sent_value = value;
     _commandInProgress = true;
 }

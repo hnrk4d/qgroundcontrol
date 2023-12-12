@@ -105,6 +105,7 @@ private:
         };
         State state{State::NotActive};
         float value{0.f};
+        float sent_value{-255.0f};
         QElapsedTimer lastUpdated;
     };
 
@@ -113,7 +114,7 @@ private:
     static void ackHandlerEntry(void* resultHandlerData, int compId, MAV_RESULT commandResult, uint8_t progress,
             Vehicle::MavCmdResultFailureCode_t failureCode);
     void ackHandler(MAV_RESULT commandResult, Vehicle::MavCmdResultFailureCode_t failureCode);
-    void sendMavlinkRequest(int function, float value, float timeout);
+    void sendMavlinkRequest(int actuatorState, int function, float value, float timeout);
 
     void sendNext();
     void watchdogTimeout();
