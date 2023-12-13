@@ -297,6 +297,10 @@ void MissionController::sendItemsToVehicle(Vehicle* vehicle, QmlObjectListModel*
 
         _convertToMissionItems(visualMissionItems, rgMissionItems, vehicle);
 
+        for(auto &it : rgMissionItems) {
+            qCDebug(MissionControllerLog) << "mission item:" << it->command() << it->coordinate() << it->param7();
+        }
+
         // PlanManager takes control of MissionItems so no need to delete
         vehicle->missionManager()->writeMissionItems(rgMissionItems);
     }

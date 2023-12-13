@@ -82,7 +82,8 @@ void ActuatorTest::setChannelTo(int index, float value)
     if (!_active || index >= _states.size()) {
         return;
     }
-    qCDebug(ActuatorsConfigLog) << "setting actuator: index:" << index << "value:" << value;
+
+    //qCDebug(ActuatorsConfigLog) << "setting actuator: index:" << index << "value:" << value;
 
     if(std::fabs(value- -1.0f) < std::numeric_limits<float>::epsilon()) {
         //channel becomes inactive
