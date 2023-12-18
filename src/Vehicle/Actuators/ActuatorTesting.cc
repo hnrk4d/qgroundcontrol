@@ -196,10 +196,10 @@ void ActuatorTest::sendNext()
 
 void ActuatorTest::sendMavlinkRequest(int actuatorState, int function, float value, float timeout)
 {
-    if(std::fabs(_states[actuatorState].sent_value-value) < std::numeric_limits<float>::epsilon() && _states[actuatorState].lastUpdated.elapsed() < 50) {
+    /*if(std::fabs(_states[actuatorState].sent_value-value) < std::numeric_limits<float>::epsilon() && _states[actuatorState].lastUpdated.elapsed() < 50) {
         //nothing new within the given time period
         return;
-    }
+    }*/
     qCDebug(ActuatorsConfigLog) << "Sending actuator test function:" << function << "value:" << value;
 
     // TODO: consider using a lower command timeout
