@@ -1226,7 +1226,14 @@ void TransectStyleComplexItem::_appendConditionGate(QList<MissionItem*>& items, 
     items.append(item);
 }
 
-void TransectStyleComplexItem::_appendCameraTriggerDistance(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum, float triggerDistance) {
+float TransectStyleComplexItem::_normalize(float val) {
+    val = qMax(0.0f, qMin(100.0f, val));
+    val = 2.0*val/100.0f-1.0f;
+    val=qMax(-1.0f, qMin(1.0f, val));
+    return val;
+}
+
+void TransectStyleComplexItem::_appendCameraTriggerDistance(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum, float triggerDistance, bool veryLast) {
 /*  FLKTR:
     We reinterprete this function to set the PWM AUX actuators to the desired values to control the motors
     of the attached spraying and spreading units.
@@ -1245,38 +1252,51 @@ void TransectStyleComplexItem::_appendCameraTriggerDistance(QList<MissionItem*>&
                                         true,                           // autoContinue
                                         false,                          // isCurrentItem
                                         missionItemParent);*/
-    float dosing_pump = _cameraCalc.adjustedFootprintFrontal()->rawValue().toFloat(); //value reinterpretation
-    float rotaryDisk  = _cameraCalc.imageDensity()->rawValue().toFloat();
-    dosing_pump = qMax(0.0f, qMin(100.0f, dosing_pump));
-    dosing_pump = 2.0*dosing_pump/100.0f-1.0f;
-    dosing_pump=qMax(-1.0f, qMin(1.0f, dosing_pump));
-    rotaryDisk  = qMax(0.0f, qMin(100.0f, rotaryDisk));
-    rotaryDisk = 2.0*rotaryDisk/100.0f-1.0f;
-    rotaryDisk=qMax(-1.0f, qMin(1.0f, rotaryDisk));
+
+    ToolSettings * settings = qgcApp()->toolbox()->settingsManager()->toolSettings();
+    int tool = settings->tool()->rawValue().toInt();
+    float dosingWheel = -1.f;
+    float rotaryDisk = -1.f;
+    float pump = -1.f;
+
+    switch (tool) {
+    case 1: //Lehner spreading
+        if(triggerDistance > std::numeric_limits<float>::epsilon()) { //turn on within transect, off in turnaround
+          dosingWheel = _normalize(_cameraCalc.adjustedFootprintFrontal()->rawValue().toFloat()); //value reinterpretation
+        }
+        //keep on the entire time, except for the last time
+        if(!veryLast) {
+          rotaryDisk  = _normalize(_cameraCalc.imageDensity()->rawValue().toFloat());
+        }
+        break;
+    case 2: //agrotop spraying
+        pump = _normalize(_cameraCalc.adjustedFootprintFrontal()->rawValue().toFloat());
+        break;
+    }
+
     MissionItem* item = new MissionItem(seqNum++,
                                         MAV_CMD_DO_SET_ACTUATOR,
                                         MAV_FRAME_MISSION,
-                                        dosing_pump, //param1 -> PWM AUX1, spreading
+                                        dosingWheel, //param1 -> PWM AUX1, spreading
                                         rotaryDisk,  //param2 -> PWM AUX2, spreading
-                                        1,  //param3 -> PWM AUX3 for compatibility reasons
-                                        dosing_pump, //param4 -> AUX4, pump, spraying
-                                        0, //param5 unused
-                                        0, //param6 unused
-                                        0, //param7 unused
+                                        -1,  //param3 unused
+                                        pump, //param4 -> AUX4, pump, spraying
+                                        -1, //param5 unused
+                                        -1, //param6 unused
+                                        -1, //param7 unused
                                         true,                           // autoContinue
                                         false,                          // isCurrentItem
                                         missionItemParent);
     items.append(item);
 }
 
-void TransectStyleComplexItem::_appendCameraTriggerDistanceUpdatePoint(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum, MAV_FRAME mavFrame, const QGeoCoordinate& coordinate, bool useConditionGate, float triggerDistance)
-{
+void TransectStyleComplexItem::_appendCameraTriggerDistanceUpdatePoint(QList<MissionItem*>& items, QObject* missionItemParent, int& seqNum, MAV_FRAME mavFrame, const QGeoCoordinate& coordinate, bool useConditionGate, float triggerDistance, bool veryLast) {
     if (useConditionGate) {
         _appendConditionGate(items, missionItemParent, seqNum, mavFrame, coordinate);
     } else {
         _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordinate);
     }
-    _appendCameraTriggerDistance(items, missionItemParent, seqNum, triggerDistance);
+    _appendCameraTriggerDistance(items, missionItemParent, seqNum, triggerDistance, veryLast);
 }
 
 TransectStyleComplexItem::BuildMissionItemsState_t TransectStyleComplexItem::_buildMissionItemsState(void) const
@@ -1332,7 +1352,7 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
             bool firstEntryTurnaround   = coordIndex == 0;
             bool lastExitTurnaround     = coordIndex == _rgFlightPathCoordInfo.count() - 1;
             if (buildState.addTriggerAtFirstAndLastPoint && (firstEntryTurnaround || lastExitTurnaround)) {
-                _appendCameraTriggerDistanceUpdatePoint(items, missionItemParent, seqNum, mavFrame, coordInfo.coord, buildState.useConditionGate, firstEntryTurnaround ? triggerDistance() : 0);
+                _appendCameraTriggerDistanceUpdatePoint(items, missionItemParent, seqNum, mavFrame, coordInfo.coord, buildState.useConditionGate, firstEntryTurnaround ? triggerDistance() : 0, lastExitTurnaround);
             } else {
                 _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord);
             }
@@ -1356,18 +1376,18 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
             }
             break;
         case CoordTypeSurveyExit:
-            bool lastSurveyExit = coordIndex == _rgFlightPathCoordInfo.count() - 1;
+            bool lastSurveyExit = (coordIndex == _rgFlightPathCoordInfo.count() - 2) || (coordIndex == _rgFlightPathCoordInfo.count() - 1);
             if (triggerCamera()) {
                 if (hoverAndCaptureEnabled()) {
                     _appendWaypoint(items, missionItemParent, seqNum, mavFrame, _hoverAndCaptureDelaySeconds, coordInfo.coord);
                     _appendSinglePhotoCapture(items, missionItemParent, seqNum);
                 } else if (buildState.addTriggerAtFirstAndLastPoint && !buildState.hasTurnarounds && lastSurveyExit) {
-                    _appendCameraTriggerDistanceUpdatePoint(items, missionItemParent, seqNum, mavFrame, coordInfo.coord, buildState.useConditionGate, 0 /* triggerDistance */);
+                    _appendCameraTriggerDistanceUpdatePoint(items, missionItemParent, seqNum, mavFrame, coordInfo.coord, buildState.useConditionGate, 0 /* triggerDistance */, true);
                 } else if (buildState.imagesInTurnaround) {
                     _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord);
                 } else {
                     // If we get this far it means the camera is triggering start/stop for each transect
-                    _appendCameraTriggerDistanceUpdatePoint(items, missionItemParent, seqNum, mavFrame, coordInfo.coord, buildState.useConditionGate, 0 /* triggerDistance */);
+                    _appendCameraTriggerDistanceUpdatePoint(items, missionItemParent, seqNum, mavFrame, coordInfo.coord, buildState.useConditionGate, 0 /* triggerDistance */, lastSurveyExit);
                 }
             } else {
                 _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord);
