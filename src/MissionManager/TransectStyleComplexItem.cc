@@ -1270,7 +1270,9 @@ void TransectStyleComplexItem::_appendCameraTriggerDistance(QList<MissionItem*>&
         }
         break;
     case 2: //agrotop spraying
-        pump = _normalize(_cameraCalc.adjustedFootprintFrontal()->rawValue().toFloat());
+        if(triggerDistance > std::numeric_limits<float>::epsilon()) { //turn on within transect, off in turnaround
+            pump = _normalize(_cameraCalc.adjustedFootprintFrontal()->rawValue().toFloat());
+        }
         break;
     }
 
