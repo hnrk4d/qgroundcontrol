@@ -1429,7 +1429,6 @@ void Vehicle::_handleSysStatus(mavlink_message_t& message)
         emit toolIdChanged(_tool_id);
     }
 
-    //sysStatus.tool_data1 = 1500; //for test purposes
     if(sysStatus.tool_data1 != _tool_data1 || sysStatus.tool_data2 != _tool_data2) {
         _tool_data1 = sysStatus.tool_data1;
         _tool_data2 = sysStatus.tool_data2;
@@ -1441,9 +1440,6 @@ void Vehicle::_handleSysStatus(mavlink_message_t& message)
 }
 
 qreal Vehicle::_mapToWeight(int aRawValue) {
-    if(aRawValue <=0) {
-        return -1.0;
-    }
     qreal val=((qreal)aRawValue)/1000.0;
     return val;
 }
