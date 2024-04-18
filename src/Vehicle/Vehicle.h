@@ -258,6 +258,8 @@ public:
 
     //Tank (aka tool+tank) weight
     Q_PROPERTY(qreal                tankWeight                  READ tankWeight                                                     NOTIFY tankWeightChanged)
+    //PWM values
+    Q_PROPERTY(QVector<uint>        pwm                         READ pwm                                                            NOTIFY pwmChanged)
 
     // The following properties relate to Orbit status
     Q_PROPERTY(bool             orbitActive     READ orbitActive        NOTIFY orbitActiveChanged)
@@ -650,7 +652,8 @@ public:
     bool            requiresGpsFix              () const { return static_cast<bool>(_onboardControlSensorsPresent & SysStatusSensorGPS); }
     bool            hilMode                     () const { return _base_mode & MAV_MODE_FLAG_HIL_ENABLED; }
     Actuators*      actuators                   () const { return _actuators; }
-    qreal           tankWeight                  () const{ return _tankWeight; } //in kg, negative values indicate the unavailibility of the sensor value
+    qreal           tankWeight                  () const { return _tankWeight; } //in kg, negative values indicate the unavailibility of the sensor value
+    QVector<uint>   pwm                         () const { return _pwm;}
 
     /// Get the maximum MAVLink protocol version supported
     /// @return the maximum version
@@ -966,6 +969,7 @@ signals:
     void loadProgressChanged            (float value);
 
     void tankWeightChanged             (qreal value);
+    void pwmChanged                    (const QVector<uint> &value);
 
     /// New RC channel values coming from RC_CHANNELS message
     ///     @param channelCount Number of available channels, cMaxRcChannels max
@@ -1006,9 +1010,6 @@ signals:
     void initialConnectComplete         ();
 
     void sensorsParametersResetAck      (bool success);
-
-    void toolDataChanged                (int val1, int val2);
-    void toolIdChanged                  (int toolId);
 
 private slots:
     void _mavlinkMessageReceived            (LinkInterface* link, mavlink_message_t message);
@@ -1470,11 +1471,11 @@ private:
     TerrainAtCoordinateQuery*   _currentDoSetHomeTerrainAtCoordinateQuery = nullptr;
     QGeoCoordinate              _doSetHomeCoordinate;
 
-    int _tool_id = 0xffff;
-    int _tool_data1 = -1;
-    int _tool_data2 = -1;
+    int _tool_weight = -1;
+    int _tool_data = -1;
     qreal _tankWeight = -1.0;
     qreal _mapToWeight(int aRawValue); //map tool value to weight
+    QVector<uint> _pwm; //holds the pwm values from the microcontroller
 };
 
 Q_DECLARE_METATYPE(Vehicle::MavCmdResultFailureCode_t)

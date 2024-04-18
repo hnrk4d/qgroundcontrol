@@ -177,6 +177,7 @@ Vehicle::Vehicle(LinkInterface*             link,
     , _hygrometerFactGroup          (this)
     , _terrainFactGroup             (this)
     , _terrainProtocolHandler       (new TerrainProtocolHandler(this, &_terrainFactGroup, this))
+    , _pwm(6)
 {
     _linkManager = _toolbox->linkManager();
 
@@ -1424,18 +1425,23 @@ void Vehicle::_handleSysStatus(mavlink_message_t& message)
         emit sensorsUnhealthyBitsChanged(_onboardControlSensorsUnhealthy);
     }
 
-    if(sysStatus.tool_id != _tool_id) {
-        _tool_id = sysStatus.tool_id;
-        emit toolIdChanged(_tool_id);
+    if(sysStatus.tool_id & 0x01 && (_tool_weight != sysStatus.tool_weight)) { //sys status includes a weight reporting
+        _tool_weight = sysStatus.tool_weight;
+        _tankWeight = _mapToWeight(_tool_weight);
+        emit tankWeightChanged(_tankWeight);
     }
 
-    if(sysStatus.tool_data1 != _tool_data1 || sysStatus.tool_data2 != _tool_data2) {
-        _tool_data1 = sysStatus.tool_data1;
-        _tool_data2 = sysStatus.tool_data2;
-        emit toolDataChanged(_tool_data1, _tool_data2);
-
-        _tankWeight = _mapToWeight(_tool_data1);
-        emit tankWeightChanged(_tankWeight);
+    if(sysStatus.tool_id & 0x02 && ( //sys status includes PWM reporting
+            _pwm[0] != sysStatus.tool_pwm0 || _pwm[1] != sysStatus.tool_pwm1 || _pwm[2] != sysStatus.tool_pwm2 ||
+            _pwm[3] != sysStatus.tool_pwm3 || _pwm[4] != sysStatus.tool_pwm4 || _pwm[5] != sysStatus.tool_pwm5
+        )) {
+        _pwm[0] = sysStatus.tool_pwm0;
+        _pwm[1] = sysStatus.tool_pwm1;
+        _pwm[2] = sysStatus.tool_pwm2;
+        _pwm[3] = sysStatus.tool_pwm3;
+        _pwm[4] = sysStatus.tool_pwm4;
+        _pwm[5] = sysStatus.tool_pwm5;
+        emit pwmChanged(_pwm);
     }
 }
 

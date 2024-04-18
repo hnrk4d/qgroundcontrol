@@ -432,7 +432,7 @@ void MockLink::_sendSysStatus(void)
                 8000,       // current_battery
                 _battery1PctRemaining, // battery_remaining
                 0,0,0,0,0,0,0,0,0,
-        0, 0, 0); //FLKTR extended protocol
+        0, 0, 0, 0, 0, 0, 0, 0, 0); //FLKTR extended protocol
     respondWithMavlinkMessage(msg);
 }
 
