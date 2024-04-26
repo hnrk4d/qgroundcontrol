@@ -249,6 +249,7 @@ private:
     void    _buildFlightPathCoordInfoFromPathHeightInfoForCalcAboveTerrain  (void);
     void    _buildFlightPathCoordInfoFromPathHeightInfoForTerrainFrame      (void);
     void    _buildFlightPathCoordInfoFromMissionItems                       (void);
+    void    _intersectWithRateAreaPolygons                                  (void);
     void    _adjustForMaxRates                                              (void);
     void    _adjustForTolerance                                             (void);
     double  _altitudeBetweenCoords                                          (const QGeoCoordinate& fromCoord, const QGeoCoordinate& toCoord, double percentTowardsTo);

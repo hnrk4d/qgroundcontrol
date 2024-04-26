@@ -672,3 +672,50 @@ void QGCMapPolygon::selectVertex(int index)
 
     emit selectedVertexChanged(_selectedVertexIndex);
 }
+
+void QGCMapPolygon::intersects(const QGeoCoordinate& from, const QGeoCoordinate& to, std::list<CoordTuple>& intersections) const {
+    QLineF fromTo(from.latitude(), from.longitude(), to.latitude(), to.longitude());
+    QVector<QPointF> points;
+    if (_polygonPath.count() > 2) {
+        std::vector<QGeoCoordinate> polygon;
+        int i;
+        for (i=0; i<_polygonPath.count(); i++) {
+            QGeoCoordinate coord = _polygonPath[i].value<QGeoCoordinate>();
+            polygon.push_back(coord);
+            points.append(QPointF(coord.latitude(), coord.longitude()));
+        }
+        if(!_toPolygonF().isClosed()) {
+            QGeoCoordinate coord = _polygonPath[0].value<QGeoCoordinate>();
+            polygon.push_back(coord); //add the first point to close the loop
+            points.append(QPointF(coord.latitude(), coord.longitude()));
+        }
+        qDebug() << "polygon: " << polygon.size();
+        for (i=0; i < (int)polygon.size()-1; ++i) {
+            QGeoCoordinate p0 = polygon[i];
+            QGeoCoordinate p1 = polygon[i+1];
+            QLineF p0p1(p0.latitude(), p0.longitude(), p1.latitude(), p1.longitude());
+            QPointF intersectionPoint;
+            if(fromTo.intersects(p0p1, &intersectionPoint) == QLineF::BoundedIntersection) {
+                qreal ratio = QLineF(from.latitude(), from.longitude(), intersectionPoint.x(), intersectionPoint.y()).length()/fromTo.length();
+                if(ratio > 0.0f && ratio < 1.0f) {
+                    //compute new coordinate altitude, then the save the intersection coordinate
+                    qreal alt = from.altitude() + ratio * (to.altitude() - from.altitude());
+                    QGeoCoordinate intersectionCoord(intersectionPoint.x(), intersectionPoint.y(), alt);
+                    //we use the ratio to sort later on the coordinates according to the distance from the starting point from
+                    intersections.push_back(CoordTuple(intersectionCoord, ratio));
+                }
+            }
+        }
+        //sort according to distance from 'from'
+        intersections.sort([](const QGCMapPolygon::CoordTuple &a, const QGCMapPolygon::CoordTuple &b) {return a.dist < b.dist;});
+        //check if the very first point is outside the poygon
+        QPolygonF poly(points);
+        bool outsideIn = !poly.containsPoint(QPointF(from.latitude(), from.longitude()), Qt::OddEvenFill);
+        qDebug() << "#intersections: " << intersections.size();
+        for(auto &p : intersections) {
+            p.outsideIn = outsideIn;
+            outsideIn = !outsideIn; //toggle flag
+            qDebug() << p.coord << p.dist << p.outsideIn;
+        }
+    }
+}

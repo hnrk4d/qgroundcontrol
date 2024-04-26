@@ -10,11 +10,7 @@
 #include "TransectStyleComplexItem.h"
 #include "JsonHelper.h"
 #include "MissionController.h"
-#include "QGCGeo.h"
-#include "QGCQGeoCoordinate.h"
 #include "SettingsManager.h"
-#include "AppSettings.h"
-#include "QGCQGeoCoordinate.h"
 #include "QGCApplication.h"
 #include "PlanMasterController.h"
 #include "FlightPathSegment.h"
@@ -438,6 +434,8 @@ void TransectStyleComplexItem::_rebuildTransects(void)
         _queryTransectsPathHeightInfo();
         break;
     }
+
+    _intersectWithRateAreaPolygons();
 
     // Calc bounding cube
     double north = 0.0;
@@ -924,8 +922,39 @@ void TransectStyleComplexItem::_buildFlightPathCoordInfoFromTransects(void)
     }
 }
 
+void TransectStyleComplexItem::_intersectWithRateAreaPolygons(void) {
+    qDebug() << "BEGIN: TransectStyleComplexItem::_intersectWithRateAreaPolygons";
+    qDebug() << "count:" <<_transects.count();
+    int num_intersections = 0;
+    for (int transectIndex=0; transectIndex<_transects.count(); transectIndex++) {
+        const QList<CoordInfo_t>& transect = _transects[transectIndex];
+
+        for (int transectCoordIndex=0; transectCoordIndex<transect.count() - 1; transectCoordIndex++) {
+            std::list<QGCMapPolygon::CoordTuple> intersections;
+            CoordInfo_t fromCoordInfo   = transect[transectCoordIndex];
+            CoordInfo_t toCoordInfo     = transect[transectCoordIndex+1];
+            if((fromCoordInfo.coordType == CoordTypeSurveyEntry && toCoordInfo.coordType == CoordTypeSurveyExit) ||
+                (fromCoordInfo.coordType == CoordTypeSurveyExit && toCoordInfo.coordType == CoordTypeSurveyEntry)) { //we are interested only in "real" transects, not the turnarounds
+                //loop through rate area polygons and compute intersections
+                qDebug() << "transect:" << fromCoordInfo.coord << toCoordInfo.coord;
+                for(const auto &rateAreaPolygon: _rateAreaPolygons) {
+                    std::list<QGCMapPolygon::CoordTuple> intersects_part;
+                    rateAreaPolygon->intersects(fromCoordInfo.coord, toCoordInfo.coord, intersects_part);
+                    intersections.insert(intersections.end(), intersects_part.begin(), intersects_part.end()); //merge in
+                }
+            }
+            //we sort the coordinates according to the distance from the starting point
+            intersections.sort([](const QGCMapPolygon::CoordTuple &a, const QGCMapPolygon::CoordTuple &b) {return a.dist < b.dist;});
+            num_intersections += intersections.size();
+        }
+    }
+    qDebug() << "num intersections:" << num_intersections;
+    qDebug() << "END: TransectStyleComplexItem::_intersectWithRateAreaPolygons";
+}
+
 void TransectStyleComplexItem::_buildFlightPathCoordInfoFromPathHeightInfoForCalcAboveTerrain(void)
 {
+    qDebug() << "TransectStyleComplexItem::_buildFlightPathCoordInfoFromPathHeightInfoForCalcAboveTerrain";
     _minAMSLAltitude = _maxAMSLAltitude = qQNaN();
 
     if (_rgPathHeightInfo.count() == 0) {
@@ -1562,6 +1591,7 @@ bool TransectStyleComplexItem::loadRateFile(const QString& file) {
     bool res = QGCMapPolygon::createFromKMLOrSHPFile(_rateAreaPolygons, file);
     if(res) {
         emit rateAreaPolygonsChanged();
+        _rebuildTransects();
     }
     return res;
 }

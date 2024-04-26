@@ -206,7 +206,6 @@ bool SHPFileHelper::loadPolygonsFromFile(const QString& shpFile, QList<QList<QGe
         QList<QGeoCoordinate> coords;
         shpObject = SHPReadObject(shpHandle, i);
         if (shpObject->nParts != 1) {
-            qDebug() << shpObject->nParts;
             if(!errorString.isEmpty()) errorString.append(" ");
             errorString.append(QString::number(i)+". SHP record: ");
             errorString.append(QString(_errorPrefix).arg(tr("Only single part polygons are supported.")));

@@ -25,6 +25,13 @@ class QGCMapPolygon : public QObject
     Q_OBJECT
 
 public:
+    struct CoordTuple {
+        CoordTuple(const QGeoCoordinate &aCoord, double aDist, bool aOutsideIn = true) : coord(aCoord), dist(aDist), outsideIn(aOutsideIn) {}
+        QGeoCoordinate coord {};
+        double dist {};
+        bool outsideIn {};
+    };
+
     QGCMapPolygon(QObject* parent = nullptr);
     QGCMapPolygon(const QGCMapPolygon& other, QObject* parent = nullptr);
 
@@ -130,6 +137,9 @@ public:
     void selectVertex   (int index);
 
     static const char* jsonPolygonKey;
+
+    //collects the intersection of the line with the polygon, the intersections do not include the from nor to
+    void intersects(const QGeoCoordinate& from, const QGeoCoordinate& to, std::list<CoordTuple>& intersections) const;
 
 signals:
     void countChanged       (int count);
