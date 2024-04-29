@@ -118,6 +118,7 @@ public:
     double              maxAMSLAltitude             (void) const final;
 
     Q_INVOKABLE bool loadRateFile(const QString& file); //load application rate file
+    Q_INVOKABLE void resetRateFileToNone(); //reset
 
     static const char* turnAroundDistanceName;
     static const char* turnAroundDistanceMultiRotorName;
@@ -173,12 +174,14 @@ protected:
     QList<QGCMapPolygon*> _rateAreaPolygons;
 
     enum CoordType {
-        CoordTypeInterior,              ///< Interior waypoint for flight path only (example: interior corridor point)
-        CoordTypeInteriorHoverTrigger,  ///< Interior waypoint for hover and capture trigger
-        CoordTypeInteriorTerrainAdded,  ///< Interior waypoint added for terrain
-        CoordTypeSurveyEntry,           ///< Waypoint at entry edge of survey polygon
-        CoordTypeSurveyExit,            ///< Waypoint at exit edge of survey polygon
-        CoordTypeTurnaround,            ///< Turnaround extension waypoint
+        CoordTypeInterior,                 ///< Interior waypoint for flight path only (example: interior corridor point)
+        CoordTypeInteriorHoverTrigger,     ///< Interior waypoint for hover and capture trigger
+        CoordTypeInteriorTerrainAdded,     ///< Interior waypoint added for terrain
+        CoordTypeInteriorRatePolygonEntry, ///< Interior waypoint for transects entering the rate poygons
+        CoordTypeInteriorRatePolygonExit,  ///< Interior waypoint for transects leaving the rate poygons
+        CoordTypeSurveyEntry,              ///< Waypoint at entry edge of survey polygon
+        CoordTypeSurveyExit,               ///< Waypoint at exit edge of survey polygon
+        CoordTypeTurnaround,               ///< Turnaround extension waypoint
     };
 
     typedef struct {
@@ -223,6 +226,7 @@ protected:
     static const char* _jsonItemsKey;
     static const char* _jsonTerrainFlightSpeed;
     static const char* _jsonCameraShotsKey;
+    static const char *_jsonRatePolyKey;
 
     static const int _terrainQueryTimeoutMsecs=     1000;
     static const int _hoverAndCaptureDelaySeconds = 4;

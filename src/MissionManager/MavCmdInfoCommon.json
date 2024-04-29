@@ -633,7 +633,7 @@
         {
             "id":           187,
             "rawName":      "MAV_CMD_DO_SET_ACTUATOR",
-            "friendlyName": "Set actuator",
+            "friendlyName": "Set Actuator",
             "description":  "Set actuator to specified output value (range [-1, 1]).",
             "friendlyEdit": true,
             "param1": {

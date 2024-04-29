@@ -36,6 +36,7 @@ const char* TransectStyleComplexItem::_jsonVisualTransectPointsKey          = "V
 const char* TransectStyleComplexItem::_jsonItemsKey                         = "Items";
 const char* TransectStyleComplexItem::_jsonTerrainFlightSpeed               = "TerrainFlightSpeed";
 const char* TransectStyleComplexItem::_jsonCameraShotsKey                   = "CameraShots";
+const char* TransectStyleComplexItem::_jsonRatePolyKey                      = "RatePolygons";
 
 const char* TransectStyleComplexItem::_jsonTerrainFollowKeyDeprecated       = "FollowTerrain";
 
@@ -181,6 +182,15 @@ void TransectStyleComplexItem::_save(QJsonObject& complexObject)
     missionItemParent->deleteLater();
     innerObject[_jsonItemsKey] = missionItemsJsonArray;
 
+    // Save rate polygons
+    QJsonArray  ratePolyItemsJsonArray;
+    for(QGCMapPolygon* poly: _rateAreaPolygons) {
+        QJsonObject ratePolyJsonObject;
+        poly->saveToJson(ratePolyJsonObject);
+        ratePolyItemsJsonArray.append(ratePolyJsonObject);
+    }
+    innerObject[_jsonRatePolyKey] = ratePolyItemsJsonArray;
+
     complexObject[_jsonTransectStyleComplexItemKey] = innerObject;
 }
 
@@ -265,6 +275,29 @@ bool TransectStyleComplexItem::_load(const QJsonObject& complexObject, bool forP
                 return false;
             }
             _loadedMissionItems.append(missionItem);
+        }
+
+        // Load rate polygons
+        QJsonArray ratePolysJsonArray = innerObject[_jsonRatePolyKey].toArray();
+        for(const QJsonValue ratePolyJson: ratePolysJsonArray) {
+            if(ratePolyJson.isObject()) {
+                QJsonObject rpj = ratePolyJson.toObject();
+                QGCMapPolygon *poly = new QGCMapPolygon;
+                QString err;
+                if(!poly->loadFromJson(rpj, true, err)) {
+                    errorString = tr("Unable to load rate area polygons: ") + err;
+                    poly->deleteLater();
+                    poly = 0;
+                    return false;
+                }
+                _rateAreaPolygons.append(poly);
+                emit rateAreaPolygonsChanged();
+            }
+            else {
+                //rate polygons are not objects!?
+                errorString = tr("Rate area polygons are not in a correct json format.");
+                return false;
+            }
         }
     }
 
@@ -416,6 +449,8 @@ void TransectStyleComplexItem::_rebuildTransects(void)
 
     _minAMSLAltitude = _maxAMSLAltitude = qQNaN();
 
+    _intersectWithRateAreaPolygons(); //add additional transect points for entries and exits to rate area poygons
+
     switch (_cameraCalc.distanceMode()) {
     case QGroundControlQmlGlobal::AltitudeModeMixed:
     case QGroundControlQmlGlobal::AltitudeModeNone:
@@ -434,8 +469,6 @@ void TransectStyleComplexItem::_rebuildTransects(void)
         _queryTransectsPathHeightInfo();
         break;
     }
-
-    _intersectWithRateAreaPolygons();
 
     // Calc bounding cube
     double north = 0.0;
@@ -923,20 +956,19 @@ void TransectStyleComplexItem::_buildFlightPathCoordInfoFromTransects(void)
 }
 
 void TransectStyleComplexItem::_intersectWithRateAreaPolygons(void) {
-    qDebug() << "BEGIN: TransectStyleComplexItem::_intersectWithRateAreaPolygons";
-    qDebug() << "count:" <<_transects.count();
     int num_intersections = 0;
     for (int transectIndex=0; transectIndex<_transects.count(); transectIndex++) {
         const QList<CoordInfo_t>& transect = _transects[transectIndex];
 
+        std::list<CoordInfo_t> transectAndIntersections;
         for (int transectCoordIndex=0; transectCoordIndex<transect.count() - 1; transectCoordIndex++) {
             std::list<QGCMapPolygon::CoordTuple> intersections;
             CoordInfo_t fromCoordInfo   = transect[transectCoordIndex];
             CoordInfo_t toCoordInfo     = transect[transectCoordIndex+1];
+            transectAndIntersections.push_back(fromCoordInfo);
             if((fromCoordInfo.coordType == CoordTypeSurveyEntry && toCoordInfo.coordType == CoordTypeSurveyExit) ||
                 (fromCoordInfo.coordType == CoordTypeSurveyExit && toCoordInfo.coordType == CoordTypeSurveyEntry)) { //we are interested only in "real" transects, not the turnarounds
                 //loop through rate area polygons and compute intersections
-                qDebug() << "transect:" << fromCoordInfo.coord << toCoordInfo.coord;
                 for(const auto &rateAreaPolygon: _rateAreaPolygons) {
                     std::list<QGCMapPolygon::CoordTuple> intersects_part;
                     rateAreaPolygon->intersects(fromCoordInfo.coord, toCoordInfo.coord, intersects_part);
@@ -946,15 +978,28 @@ void TransectStyleComplexItem::_intersectWithRateAreaPolygons(void) {
             //we sort the coordinates according to the distance from the starting point
             intersections.sort([](const QGCMapPolygon::CoordTuple &a, const QGCMapPolygon::CoordTuple &b) {return a.dist < b.dist;});
             num_intersections += intersections.size();
+            //add intersection points (if any)
+            for(const auto &is : intersections) {
+                CoordInfo_t coord;
+                coord.coord = is.coord;
+                coord.coordType = is.outsideIn ? CoordTypeInteriorRatePolygonEntry : CoordTypeInteriorRatePolygonExit;
+                transectAndIntersections.push_back(coord);
+            }
+        }
+        if(transect.count() >= 2) { //at least 2 points -> add the last point
+            transectAndIntersections.push_back(transect[transect.count()-1]);
+        }
+        //finally rebuild the respective transect list
+        _transects[transectIndex].clear();
+        for(const auto &t : transectAndIntersections) {
+            _transects[transectIndex].append(t);
         }
     }
     qDebug() << "num intersections:" << num_intersections;
-    qDebug() << "END: TransectStyleComplexItem::_intersectWithRateAreaPolygons";
 }
 
 void TransectStyleComplexItem::_buildFlightPathCoordInfoFromPathHeightInfoForCalcAboveTerrain(void)
 {
-    qDebug() << "TransectStyleComplexItem::_buildFlightPathCoordInfoFromPathHeightInfoForCalcAboveTerrain";
     _minAMSLAltitude = _maxAMSLAltitude = qQNaN();
 
     if (_rgPathHeightInfo.count() == 0) {
@@ -1135,13 +1180,18 @@ int TransectStyleComplexItem::lastSequenceNumber(void) const
             case CoordTypeInteriorHoverTrigger:
                 itemCount += 2; // Waypoint + camera trigger
                 break;
+            case CoordTypeInteriorRatePolygonEntry:
             case CoordTypeSurveyEntry:
-                if (triggerCamera()) {
+                if (triggerCamera() && (
+                        (!_rateAreaPolygons.isEmpty() && coordInfo.coordType == CoordTypeInteriorRatePolygonEntry) ||
+                        (_rateAreaPolygons.isEmpty() && coordInfo.coordType == CoordTypeSurveyEntry))
+                    ) {
                     itemCount += 2; // Waypoint + camera trigger
                 } else {
                     itemCount++; // Waypoint only
                 }
                 break;
+            case CoordTypeInteriorRatePolygonExit:
             case CoordTypeSurveyExit:
                 bool lastSurveyExit = coordIndex == _rgFlightPathCoordInfo.count() - 1;
                 if (triggerCamera()) {
@@ -1161,6 +1211,7 @@ int TransectStyleComplexItem::lastSequenceNumber(void) const
             }
         }
 
+        qDebug() << "COUNT >>>>>>>>>>>>" << _sequenceNumber + itemCount;
         return _sequenceNumber + itemCount - 1;
     } else {
         // We can end up hear if we are follow terrain and the flight path isn't ready yet. So we just return an inaccurate number until
@@ -1393,8 +1444,12 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
             _appendWaypoint(items, missionItemParent, seqNum, mavFrame, _hoverAndCaptureDelaySeconds, coordInfo.coord);
             _appendSinglePhotoCapture(items, missionItemParent, seqNum);
             break;
+        case CoordTypeInteriorRatePolygonEntry:
         case CoordTypeSurveyEntry:
-            if (triggerCamera()) {
+            if (triggerCamera() && (
+                (!_rateAreaPolygons.isEmpty() && coordInfo.coordType == CoordTypeInteriorRatePolygonEntry) ||
+                (_rateAreaPolygons.isEmpty() && coordInfo.coordType == CoordTypeSurveyEntry))
+                ) {
                 if (hoverAndCaptureEnabled()) {
                     _appendWaypoint(items, missionItemParent, seqNum, mavFrame, _hoverAndCaptureDelaySeconds, coordInfo.coord);
                     _appendSinglePhotoCapture(items, missionItemParent, seqNum);
@@ -1406,6 +1461,7 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
                 _appendWaypoint(items, missionItemParent, seqNum, mavFrame, 0 /* holdTime */, coordInfo.coord);
             }
             break;
+        case CoordTypeInteriorRatePolygonExit:
         case CoordTypeSurveyExit:
             bool lastSurveyExit = (coordIndex == _rgFlightPathCoordInfo.count() - 2) || (coordIndex == _rgFlightPathCoordInfo.count() - 1);
             if (triggerCamera()) {
@@ -1426,6 +1482,7 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
             break;
         }
     }
+    qDebug() << "COUNT2 >>>>>>>>>>>" << seqNum;
 }
 
 void TransectStyleComplexItem::_appendLoadedMissionItems(QList<MissionItem*>& items, QObject* missionItemParent)
@@ -1592,6 +1649,16 @@ bool TransectStyleComplexItem::loadRateFile(const QString& file) {
     if(res) {
         emit rateAreaPolygonsChanged();
         _rebuildTransects();
+        setDirty(true);
     }
     return res;
+}
+
+void TransectStyleComplexItem::resetRateFileToNone() {
+    if(!_rateAreaPolygons.empty()) {
+        _rateAreaPolygons.clear();
+        emit rateAreaPolygonsChanged();
+        _rebuildTransects();
+        setDirty(true);
+    }
 }

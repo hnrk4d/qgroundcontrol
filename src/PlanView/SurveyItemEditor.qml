@@ -174,7 +174,7 @@ TransectStyleComplexItemEditor {
                         text:       qsTr("App. in turnarounds"), //FLKTR
                         fact:       missionItem.cameraTriggerInTurnAround,
                         enabled:    missionItem.hoverAndCaptureAllowed ? !missionItem.hoverAndCapture.rawValue : true,
-                        visible:    true
+                        visible:    false //true
                     },
                     {
                         text:       qsTr("Fly alternate transects"),

@@ -227,8 +227,15 @@ Rectangle {
                 QGCButton {
                     Layout.alignment:   Qt.AlignCenter
                     Layout.fillWidth:   true
-                    text:               qsTr("Load Application Rate File")
+                    text:               qsTr("Load App. Rate Areas")
                     onClicked:          rateLoadDialog.openForLoad()
+                }
+
+                QGCButton {
+                    Layout.alignment:   Qt.AlignCenter
+                    Layout.fillWidth:   true
+                    text:               qsTr("No App. Rate Areas")
+                    onClicked:          _missionItem.resetRateFileToNone()
                 }
 
                 SectionHeader {

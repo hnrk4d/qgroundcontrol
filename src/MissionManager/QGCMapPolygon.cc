@@ -698,7 +698,7 @@ void QGCMapPolygon::intersects(const QGeoCoordinate& from, const QGeoCoordinate&
             if(fromTo.intersects(p0p1, &intersectionPoint) == QLineF::BoundedIntersection) {
                 qreal ratio = QLineF(from.latitude(), from.longitude(), intersectionPoint.x(), intersectionPoint.y()).length()/fromTo.length();
                 if(ratio > 0.0f && ratio < 1.0f) {
-                    //compute new coordinate altitude, then the save the intersection coordinate
+                    //compute new coordinate altitude, then save the intersection coordinate
                     qreal alt = from.altitude() + ratio * (to.altitude() - from.altitude());
                     QGeoCoordinate intersectionCoord(intersectionPoint.x(), intersectionPoint.y(), alt);
                     //we use the ratio to sort later on the coordinates according to the distance from the starting point from
@@ -711,11 +711,10 @@ void QGCMapPolygon::intersects(const QGeoCoordinate& from, const QGeoCoordinate&
         //check if the very first point is outside the poygon
         QPolygonF poly(points);
         bool outsideIn = !poly.containsPoint(QPointF(from.latitude(), from.longitude()), Qt::OddEvenFill);
-        qDebug() << "#intersections: " << intersections.size();
+        qDebug() << "# poly intersections: " << intersections.size();
         for(auto &p : intersections) {
             p.outsideIn = outsideIn;
             outsideIn = !outsideIn; //toggle flag
-            qDebug() << p.coord << p.dist << p.outsideIn;
         }
     }
 }

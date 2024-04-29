@@ -139,7 +139,7 @@ TransectStyleComplexItemEditor {
                 text:               qsTr("App. in turnarounds") //FLKTR
                 fact:               _missionItem.cameraTriggerInTurnAround
                 enabled:            _missionItem.hoverAndCaptureAllowed ? !_missionItem.hoverAndCapture.rawValue : true
-                visible:            !forPresets
+                visible:            false //!forPresets
             }
         }
     }

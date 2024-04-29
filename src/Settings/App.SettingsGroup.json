@@ -339,7 +339,8 @@
     "shortDesc":  "DSM file as terrain provider",
     "longDesc":   "Select the file to provide the DSM data for terrain data",
     "type":       "string",
-    "default":    ""
+    "default":    "",
+    "qgcRebootRequired":    true
 },
 {
     "name":          "dsmSampleDistance",
