@@ -673,7 +673,6 @@ double SurveyComplexItem::_turnaroundDistance(void) const
 
 void SurveyComplexItem::_rebuildTransectsPhase1(void)
 {
-    _actuatorDistance=0; //FLKTR
     bool split = splitConcavePolygons()->rawValue().toBool();
 	if (split) {
 		_rebuildTransectsPhase1WorkerSplitPolygons(false /* refly */);
@@ -798,13 +797,6 @@ void SurveyComplexItem::_rebuildTransectsPhase1WorkerSinglePolygon(bool refly)
         _intersectLinesWithPolygon(lineList, polygon, intersectLines);
     }
 
-    //FLKTR: recalculate effective Distance
-    if(intersectLines.count()) {
-        for(const auto &l : intersectLines) {
-            _actuatorDistance += l.length();
-        }
-    }
-
     // Make sure all lines are going the same direction. Polygon intersection leads to lines which
     // can be in varied directions depending on the order of the intesecting sides.
     QList<QLineF> resultLines;
@@ -863,8 +855,6 @@ void SurveyComplexItem::_rebuildTransectsPhase1WorkerSinglePolygon(bool refly)
         transects[i] = transectVertices;
     }
 
-    bool ctita = cameraTriggerInTurnAround()->rawValue().toBool(); //FLKTR
-
     // Convert to CoordInfo transects and append to _transects
     for (const QList<QGeoCoordinate>& transect : transects) {
         QGeoCoordinate                                  coord;
@@ -908,27 +898,8 @@ void SurveyComplexItem::_rebuildTransectsPhase1WorkerSinglePolygon(bool refly)
             turnaroundCoord.setAltitude(qQNaN());
             coordInfo = { turnaroundCoord, CoordTypeTurnaround };
             coordInfoTransect.append(coordInfo);
-
-            //FLKTR:
-            if(ctita) {
-                // we add 2x turnAroundDistance
-                _actuatorDistance += 2.0 * turnAroundDistance;
-            }
         }
         _transects.append(coordInfoTransect);
-    }
-
-    if(ctita) { //FLKTR
-        CoordInfo_t c0={QGeoCoordinate(0, 0, 0), CoordTypeSurveyEntry}; //placeholder for last coord
-        for (const auto& transect : _transects) {
-            //we add the distance between 2 consecutive CoordTypeTurnaround's
-            for(const CoordInfo_t &ci : transect ) {
-                if(c0.coordType == CoordTypeTurnaround && ci.coordType == CoordTypeTurnaround) {
-                    _actuatorDistance += c0.coord.distanceTo(ci.coord);
-                }
-                c0=ci;
-            }
-        }
     }
 }
 

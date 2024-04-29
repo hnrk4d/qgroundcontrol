@@ -417,7 +417,7 @@ double TransectStyleComplexItem::coveredArea(void) const
 }
 
 double TransectStyleComplexItem::actuatorDistance() const {
-    return _actuatorDistance; //the value is actually recalculated while building the transects
+    return _actuatorDistance;
 }
 
 bool TransectStyleComplexItem::_hasTurnaround(void) const
@@ -510,6 +510,7 @@ void TransectStyleComplexItem::_rebuildTransects(void)
 
     _recalcComplexDistance();
     _recalcCameraShots();
+    _recalcActuatorDistance();
 
     emit lastSequenceNumberChanged(lastSequenceNumber());
     emit timeBetweenShotsChanged();
@@ -519,8 +520,6 @@ void TransectStyleComplexItem::_rebuildTransects(void)
     emit maxAMSLAltitudeChanged();
 
     emit _updateFlightPathSegmentsSignal();
-
-    emit actuatorDistanceChanged(); //FLKTR
 
     _amslEntryAltChanged();
     _amslExitAltChanged();
@@ -998,6 +997,15 @@ void TransectStyleComplexItem::_intersectWithRateAreaPolygons(void) {
     qDebug() << "num intersections:" << num_intersections;
 }
 
+bool TransectStyleComplexItem::_insideRateAreaPolygons(const CoordInfo_t &ci) const {
+    for(const auto &rateAreaPolygon: _rateAreaPolygons) {
+        if(rateAreaPolygon->containsCoordinate(ci.coord)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void TransectStyleComplexItem::_buildFlightPathCoordInfoFromPathHeightInfoForCalcAboveTerrain(void)
 {
     _minAMSLAltitude = _maxAMSLAltitude = qQNaN();
@@ -1183,8 +1191,9 @@ int TransectStyleComplexItem::lastSequenceNumber(void) const
             case CoordTypeInteriorRatePolygonEntry:
             case CoordTypeSurveyEntry:
                 if (triggerCamera() && (
-                        (!_rateAreaPolygons.isEmpty() && coordInfo.coordType == CoordTypeInteriorRatePolygonEntry) ||
-                        (_rateAreaPolygons.isEmpty() && coordInfo.coordType == CoordTypeSurveyEntry))
+                        (!_rateAreaPolygons.isEmpty() && coordInfo.coordType == CoordTypeInteriorRatePolygonEntry) || //an intersection with a rate poygon
+                        (!_rateAreaPolygons.isEmpty() && coordInfo.coordType == CoordTypeSurveyEntry && _insideRateAreaPolygons(coordInfo)) || //transect start within a rate polygon
+                        (_rateAreaPolygons.isEmpty() && coordInfo.coordType == CoordTypeSurveyEntry)) //no rate polygon and a normal transect start
                     ) {
                     itemCount += 2; // Waypoint + camera trigger
                 } else {
@@ -1447,8 +1456,9 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
         case CoordTypeInteriorRatePolygonEntry:
         case CoordTypeSurveyEntry:
             if (triggerCamera() && (
-                (!_rateAreaPolygons.isEmpty() && coordInfo.coordType == CoordTypeInteriorRatePolygonEntry) ||
-                (_rateAreaPolygons.isEmpty() && coordInfo.coordType == CoordTypeSurveyEntry))
+                    (!_rateAreaPolygons.isEmpty() && coordInfo.coordType == CoordTypeInteriorRatePolygonEntry) || //an intersection with a rate poygon
+                    (!_rateAreaPolygons.isEmpty() && coordInfo.coordType == CoordTypeSurveyEntry && _insideRateAreaPolygons(coordInfo)) || //transect start within a rate polygon
+                    (_rateAreaPolygons.isEmpty() && coordInfo.coordType == CoordTypeSurveyEntry)) //no rate polygon and a normal transect start
                 ) {
                 if (hoverAndCaptureEnabled()) {
                     _appendWaypoint(items, missionItemParent, seqNum, mavFrame, _hoverAndCaptureDelaySeconds, coordInfo.coord);
@@ -1517,6 +1527,44 @@ void TransectStyleComplexItem::_recalcComplexDistance(void)
         _complexDistance += _visualTransectPoints[i].value<QGeoCoordinate>().distanceTo(_visualTransectPoints[i+1].value<QGeoCoordinate>());
     }
     emit complexDistanceChanged();
+}
+
+void TransectStyleComplexItem::_recalcActuatorDistance() {
+    double oldVal = _actuatorDistance;
+    _actuatorDistance = 0;
+    if(_rateAreaPolygons.empty()) { //no rate polygons, we count within SurveyEntry and SurveyExit
+        for (int transectIndex=0; transectIndex<_transects.count(); transectIndex++) {
+            const QList<CoordInfo_t>& transect = _transects[transectIndex];
+            bool betweenEntryAndExit = false;
+            for (int transectCoordIndex=0; transectCoordIndex<transect.count() - 1; transectCoordIndex++) {
+                CoordInfo_t fromCoordInfo   = transect[transectCoordIndex];
+                CoordInfo_t toCoordInfo     = transect[transectCoordIndex+1];
+                if(fromCoordInfo.coordType == CoordTypeSurveyEntry) betweenEntryAndExit = true;
+                if(fromCoordInfo.coordType == CoordTypeSurveyExit) betweenEntryAndExit = false;
+                if(betweenEntryAndExit) _actuatorDistance += fromCoordInfo.coord.distanceTo(toCoordInfo.coord);
+            }
+        }
+    }
+    else {
+        for (int transectIndex=0; transectIndex<_transects.count(); transectIndex++) {
+            const QList<CoordInfo_t>& transect = _transects[transectIndex];
+            if(transect.count() >=2 ) {
+                bool actuatorOn = false;
+                for (int transectCoordIndex=0; transectCoordIndex<transect.count() - 1; transectCoordIndex++) {
+                    CoordInfo_t fromCoordInfo   = transect[transectCoordIndex];
+                    CoordInfo_t toCoordInfo     = transect[transectCoordIndex+1];
+                    if(fromCoordInfo.coordType == CoordTypeSurveyEntry && _insideRateAreaPolygons(fromCoordInfo)) actuatorOn = true;
+                    if(fromCoordInfo.coordType == CoordTypeInteriorRatePolygonEntry) actuatorOn = true;
+                    if(fromCoordInfo.coordType == CoordTypeInteriorRatePolygonExit) actuatorOn = false;
+                    if(fromCoordInfo.coordType == CoordTypeSurveyExit) actuatorOn = false;
+                    if(actuatorOn) _actuatorDistance += fromCoordInfo.coord.distanceTo(toCoordInfo.coord);
+                }
+            }
+        }
+    }
+    if(fabs(oldVal - _actuatorDistance) > std::numeric_limits<double>::epsilon()) {
+        emit actuatorDistanceChanged();
+    }
 }
 
 double TransectStyleComplexItem::amslEntryAlt(void) const

@@ -65,10 +65,10 @@ public:
 
     const Fact* hoverAndCapture         (void) const { return &_hoverAndCaptureFact; }
 
-    int             cameraShots             (void) const { return _cameraShots; }
-    double          coveredArea             (void) const;
-    double          actuatorDistance       (void) const;  //FLKTR
-    double          vehicleSpeed       (void) const {return _vehicleSpeed;}  //FLKTR
+    int             cameraShots         (void) const { return _cameraShots; }
+    double          coveredArea         (void) const;
+    double          actuatorDistance    (void) const;  //FLKTR
+    double          vehicleSpeed        (void) const {return _vehicleSpeed;}  //FLKTR
     bool            hoverAndCaptureAllowed  (void) const;
 
     virtual double  timeBetweenShots        (void) { return 0; } // Most be overridden. Implementation here is needed for unit testing.
@@ -259,6 +259,10 @@ private:
     double  _altitudeBetweenCoords                                          (const QGeoCoordinate& fromCoord, const QGeoCoordinate& toCoord, double percentTowardsTo);
     int     _maxPathHeight                                                  (const TerrainPathQuery::PathHeightInfo_t& pathHeightInfo, int fromIndex, int toIndex, double& maxHeight);
     BuildMissionItemsState_t _buildMissionItemsState                        (void) const;
+    bool    _useDMSFileForTerrainQueries                                    (void);
+    float   _normalize                                                      (float val);
+    bool    _insideRateAreaPolygons                                         (const CoordInfo_t &ci) const;
+    void    _recalcActuatorDistance                                         (void);
 
     TerrainPolyPathQuery*       _currentTerrainPolyPathQuery        = nullptr;
     TerrainAtCoordinateQuery*   _currentTerrainAtCoordinateQuery    = nullptr;
@@ -266,8 +270,6 @@ private:
     DSMFilePolyPathRequest*     _currentDSMFilePolyPathQuery =0;
     QTimer                      _terrainPolyPathQueryTimer;
 
-    bool _useDMSFileForTerrainQueries();
-    float _normalize(float val);
 
     // Deprecated json keys
     static const char* _jsonTerrainFollowKeyDeprecated;

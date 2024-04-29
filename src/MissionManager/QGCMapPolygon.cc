@@ -158,10 +158,20 @@ QPolygonF QGCMapPolygon::_toPolygonF(void) const
 bool QGCMapPolygon::containsCoordinate(const QGeoCoordinate& coordinate) const
 {
     if (_polygonPath.count() > 2) {
-        return _toPolygonF().containsPoint(_pointFFromCoord(coordinate), Qt::OddEvenFill);
-    } else {
-        return false;
+        QVector<QPointF> points;
+        std::vector<QGeoCoordinate> polygon;
+        for (int i=0; i<_polygonPath.count(); i++) {
+            QGeoCoordinate coord = _polygonPath[i].value<QGeoCoordinate>();
+            points.append(QPointF(coord.latitude(), coord.longitude()));
+        }
+        if(!_toPolygonF().isClosed()) {
+            QGeoCoordinate coord = _polygonPath[0].value<QGeoCoordinate>();
+            points.append(QPointF(coord.latitude(), coord.longitude()));
+        }
+        QPolygonF poly(points);
+        return poly.containsPoint(QPointF(coordinate.latitude(), coordinate.longitude()), Qt::OddEvenFill);
     }
+    return false;
 }
 
 void QGCMapPolygon::setPath(const QList<QGeoCoordinate>& path)
