@@ -323,11 +323,10 @@ void MissionManager::_handleHeartbeat(const mavlink_message_t& message)
 {
     Q_UNUSED(message);
 
-    if (_cachedLastCurrentIndex != -1 &&  _vehicle->flightMode() == _vehicle->missionFlightMode()) {
+    if (_cachedLastCurrentIndex != -1 /*&&  _vehicle->flightMode() == _vehicle->missionFlightMode()*/) {
         qCDebug(MissionManagerLog) << "_handleHeartbeat updating lastCurrentIndex from cached value:" << _cachedLastCurrentIndex;
         _lastCurrentIndex = _cachedLastCurrentIndex;
         _cachedLastCurrentIndex = -1;
         emit lastCurrentIndexChanged(_lastCurrentIndex);
     }
 }
-
