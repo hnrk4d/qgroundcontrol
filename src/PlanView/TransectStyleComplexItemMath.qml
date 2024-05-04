@@ -33,6 +33,6 @@ Item {
     property real l_per_ha : (_tool.value === 2 && va>0)?scaled_volume_per_sec*10000/va:0
 
     //valid for both tools
-    property real volume : (_tool.value === 1 && SpreadingController.currentIndex >= 0)?scaled_dist_weight/SpreadingController.libraryDensity(SpreadingController.currentIndex):((_tool.value === 2)?scaled_dist_volume:0)
+    property real volume : (_tool.value === 1 && SpreadingController.currentIndex >= 0 && SpreadingController.libraryDensity(SpreadingController.currentIndex)>0)?scaled_dist_weight/SpreadingController.libraryDensity(SpreadingController.currentIndex):((_tool.value === 2)?scaled_dist_volume:0)
     property bool tank_refillment_required : (_tool.value === 1 || _tool.value === 2)?(_tankVolume.value < volume):0
 }
