@@ -94,6 +94,7 @@ void QGCPalette::_buildMap()
     DECLARE_QGC_SINGLE_COLOR(mapWidgetBorderDark,           "#000000")
     DECLARE_QGC_SINGLE_COLOR(mapMissionTrajectory,          "#be781c")
     DECLARE_QGC_SINGLE_COLOR(surveyPolygonInterior,         "green")
+    DECLARE_QGC_SINGLE_COLOR(surveyPolygonInteriorWarn,     "orange")
     DECLARE_QGC_SINGLE_COLOR(surveyPolygonTerrainCollision, "red")
 }
 

@@ -18,6 +18,7 @@
 #include "CameraCalc.h"
 #include "TerrainQuery.h"
 #include "DSMFile.h"
+#include <QMutex>
 
 Q_DECLARE_LOGGING_CATEGORY(TransectStyleComplexItemLog)
 
@@ -269,7 +270,7 @@ private:
     DSMFileCoordRequest*        _currentDSMFileCoordQuery =0;
     DSMFilePolyPathRequest*     _currentDSMFilePolyPathQuery =0;
     QTimer                      _terrainPolyPathQueryTimer;
-
+    QMutex _mutex; //used to restrict access to _rgPathHeightInfo
 
     // Deprecated json keys
     static const char* _jsonTerrainFollowKeyDeprecated;

@@ -17,30 +17,9 @@ Grid {
     columns:        2
     columnSpacing:  ScreenTools.defaultFontPixelWidth
 
-    //FLKTR: the tool library settings impact the application rates
-    property Fact _tool: QGroundControl.settingsManager.toolSettings.tool
-
-    //general
-    property real area : missionItem.coveredArea // in m^2
-    property real dist : missionItem.actuatorDistance
-    property real v    : missionItem.vehicleSpeed // in m/sec
-    property real va   : v*missionItem.cameraCalc.adjustedFootprintSide.value// application speed (in m^2/sec)
-
-    //related to spreading
-    property real lib_weight : (_tool.value === 1 && SpreadingController.currentIndex >= 0)?SpreadingController.gritPerSec(SpreadingController.currentIndex):0
-    property real dist_weight : (_tool.value === 1 && v>0 && SpreadingController.currentIndex >= 0)?dist*lib_weight/v:0
-    property real scaling : (_tool.value === 1 && SpreadingController.currentIndex >= 0)?missionItem.cameraCalc.adjustedFootprintFrontal.value/SpreadingController.libraryDosingShaft(SpreadingController.currentIndex):0
-    property real scaled_dist_weight : dist_weight * scaling
-    property real scaled_lib_weight : lib_weight * scaling
-    property real kg_per_ha : (_tool.value === 1 && va>0)?scaled_lib_weight*10000/va:0
-
-    //related to spraying
-    property real volume_per_sec : (_tool.value === 2 && SprayingController.currentIndex >= 0)?SprayingController.volPerSec(SprayingController.currentIndex):0
-    property real dist_volume : (_tool.value === 2 && v>0 && SprayingController.currentIndex >= 0)?dist*volume_per_sec/v:0
-    property real scaling1 : (_tool.value === 2 && SprayingController.currentIndex >= 0)?missionItem.cameraCalc.adjustedFootprintFrontal.value/SprayingController.libraryPumpValue(SprayingController.currentIndex):0
-    property real scaled_dist_volume : dist_volume * scaling1
-    property real scaled_volume_per_sec : volume_per_sec * scaling1
-    property real l_per_ha : (_tool.value === 2 && va>0)?scaled_volume_per_sec*10000/va:0
+    TransectStyleComplexItemMath {
+        id: _math
+    }
 
     QGCLabel {
         id: weightL
@@ -48,7 +27,7 @@ Grid {
         visible: _tool.value === 1  //applies to spreading
     }
     QGCLabel {
-        text: scaled_dist_weight.toFixed(1) + " " + qsTr(" kg")
+        text: _math.scaled_dist_weight.toFixed(1) + " " + qsTr(" kg")
         visible: weightL.visible
     }
 
@@ -58,7 +37,7 @@ Grid {
         visible: _tool.value === 2 //applies to spraying
     }
     QGCLabel {
-        text: scaled_dist_volume.toFixed(1) + " " + qsTr(" l")
+        text: _math.scaled_dist_volume.toFixed(1) + " " + qsTr(" l")
         visible: volumeL.visible
     }
 
@@ -75,7 +54,7 @@ Grid {
         visible: _tool.value !== 0
     }
     QGCLabel {
-        text: (_tool.value === 1)?kg_per_ha.toFixed(1) + " " + qsTr("kg/ha"):l_per_ha.toFixed(1) + " " + qsTr("l/ha")
+        text: (_tool.value === 1)?_math.kg_per_ha.toFixed(1) + " " + qsTr("kg/ha"):_math.l_per_ha.toFixed(1) + " " + qsTr("l/ha")
         visible: appRateL.visible
     }
 
@@ -83,7 +62,7 @@ Grid {
         text: qsTr("Effective Dist.")
     }
     QGCLabel {
-        text: dist.toFixed(1) + " " + qsTr("m")
+        text: _math.dist.toFixed(1) + " " + qsTr("m")
     }
 
     /* FLKTR

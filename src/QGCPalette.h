@@ -148,6 +148,7 @@ public:
     DEFINE_QGC_COLOR(statusPassedText,              setstatusPassedText)
     DEFINE_QGC_COLOR(statusPendingText,             setstatusPendingText)
     DEFINE_QGC_COLOR(surveyPolygonInterior,         setSurveyPolygonInterior)
+    DEFINE_QGC_COLOR(surveyPolygonInteriorWarn,     setSurveyPolygonInteriorWarn)
     DEFINE_QGC_COLOR(surveyPolygonTerrainCollision, setSurveyPolygonTerrainCollision)
     DEFINE_QGC_COLOR(toolbarBackground,             setToolbarBackground)
     DEFINE_QGC_COLOR(toolStripFGColor,              setToolStripFGColor)

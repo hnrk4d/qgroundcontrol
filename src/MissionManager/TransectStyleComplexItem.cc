@@ -442,7 +442,9 @@ void TransectStyleComplexItem::_rebuildTransects(void)
     }
 
     _transects.clear();
+    _mutex.lock();
     _rgPathHeightInfo.clear();
+    _mutex.unlock();
     _rgFlightPathCoordInfo.clear();
 
     _rebuildTransectsPhase1();
@@ -608,7 +610,9 @@ void TransectStyleComplexItem::_updateFlightPathSegmentsDontCallDirectly(void)
 
 void TransectStyleComplexItem::_queryTransectsPathHeightInfo(void)
 {
+    _mutex.lock();
     _rgPathHeightInfo.clear();
+    _mutex.unlock();
     emit readyForSaveStateChanged();
 
     if (_transects.count()) {
@@ -634,10 +638,12 @@ void TransectStyleComplexItem::_reallyQueryTransectsPathHeightInfo(void)
 
     if(_currentDSMFileCoordQuery) {
         disconnect(_currentDSMFileCoordQuery);
+        _currentDSMFileCoordQuery->stop();
         _currentDSMFileCoordQuery = 0;
     }
     if(_currentDSMFilePolyPathQuery) {
         disconnect(_currentDSMFilePolyPathQuery);
+        _currentDSMFilePolyPathQuery->stop();
         _currentDSMFilePolyPathQuery = 0;
     }
 
@@ -714,12 +720,16 @@ void TransectStyleComplexItem::_polyPathTerrainData(bool success, const QList<Te
 {
     qCDebug(TransectStyleComplexItemLog) << "_polyPathTerrainData" << success;
 
+    _mutex.lock();
     _rgPathHeightInfo.clear();
+    _mutex.unlock();
     emit readyForSaveStateChanged();
 
     if (success) {
         // Now that we have terrain data we can adjust
+        _mutex.lock();
         _rgPathHeightInfo = rgPathHeightInfo;
+        _mutex.unlock();
 
         _adjustForAvailableTerrainData();
         emit readyForSaveStateChanged();
@@ -732,7 +742,9 @@ void TransectStyleComplexItem::_missionItemCoordTerrainData(bool success, QList<
 {
     qCDebug(TransectStyleComplexItemLog) << "_polyPathTerrainData" << success;
 
+    _mutex.lock();
     _rgPathHeightInfo.clear();
+    _mutex.unlock();
     emit readyForSaveStateChanged();
 
     if (success) {
@@ -994,7 +1006,6 @@ void TransectStyleComplexItem::_intersectWithRateAreaPolygons(void) {
             _transects[transectIndex].append(t);
         }
     }
-    qDebug() << "num intersections:" << num_intersections;
 }
 
 bool TransectStyleComplexItem::_insideRateAreaPolygons(const CoordInfo_t &ci) const {
@@ -1015,6 +1026,7 @@ void TransectStyleComplexItem::_buildFlightPathCoordInfoFromPathHeightInfoForCal
         return;
     }
 
+    _mutex.lock();
     double distanceToSurface = _cameraCalc.distanceToSurface()->rawValue().toDouble();
 
     _rgFlightPathCoordInfo.clear();
@@ -1027,6 +1039,7 @@ void TransectStyleComplexItem::_buildFlightPathCoordInfoFromPathHeightInfoForCal
             CoordInfo_t fromCoordInfo   = transect[transectCoordIndex];
             CoordInfo_t toCoordInfo     = transect[transectCoordIndex+1];
 
+            if(pathHeightIndex >= _rgPathHeightInfo.size()) break; //should not happen
             const auto& pathHeightInfo = _rgPathHeightInfo[pathHeightIndex++];
 
             fromCoordInfo.coord.setAltitude(distanceToSurface + pathHeightInfo.heights.first());
@@ -1060,6 +1073,7 @@ void TransectStyleComplexItem::_buildFlightPathCoordInfoFromPathHeightInfoForCal
         // Build flight path for turnaround
         // Add terrain interstitial points to the turn segment if not the last transect
         if (transectIndex != _transects.count() - 1) {
+            if(pathHeightIndex >= _rgPathHeightInfo.size()) break; //should not happen
             const auto& pathHeightInfo = _rgPathHeightInfo[pathHeightIndex++];
 
             int cHeights = pathHeightInfo.heights.count();
@@ -1083,6 +1097,7 @@ void TransectStyleComplexItem::_buildFlightPathCoordInfoFromPathHeightInfoForCal
             }
         }
     }
+    _mutex.unlock();
 }
 
 void TransectStyleComplexItem::_buildFlightPathCoordInfoFromPathHeightInfoForTerrainFrame(void)
@@ -1220,7 +1235,6 @@ int TransectStyleComplexItem::lastSequenceNumber(void) const
             }
         }
 
-        qDebug() << "COUNT >>>>>>>>>>>>" << _sequenceNumber + itemCount;
         return _sequenceNumber + itemCount - 1;
     } else {
         // We can end up hear if we are follow terrain and the flight path isn't ready yet. So we just return an inaccurate number until
@@ -1492,7 +1506,6 @@ void TransectStyleComplexItem::_buildAndAppendMissionItems(QList<MissionItem*>& 
             break;
         }
     }
-    qDebug() << "COUNT2 >>>>>>>>>>>" << seqNum;
 }
 
 void TransectStyleComplexItem::_appendLoadedMissionItems(QList<MissionItem*>& items, QObject* missionItemParent)

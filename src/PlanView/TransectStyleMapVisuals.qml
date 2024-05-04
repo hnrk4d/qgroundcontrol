@@ -63,6 +63,10 @@ Item {
         _destroyVisualElements()
     }
 
+    TransectStyleComplexItemMath {
+        id: _math
+    }
+
     QGCDynamicObjectManager {
         id: objMgr
     }
@@ -75,7 +79,7 @@ Item {
         interactive:        polygonInteractive && _missionItem.isCurrentItem && _root.interactive
         borderWidth:        1
         borderColor:        "black"
-        interiorColor:      QGroundControl.globalPalette.surveyPolygonInterior
+        interiorColor:      _math.tank_refillment_required?QGroundControl.globalPalette.surveyPolygonInteriorWarn:QGroundControl.globalPalette.surveyPolygonInterior
         altColor:           QGroundControl.globalPalette.surveyPolygonTerrainCollision
         interiorOpacity:    0.5 * _root.opacity
     }
