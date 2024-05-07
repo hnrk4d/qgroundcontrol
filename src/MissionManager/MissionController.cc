@@ -21,7 +21,6 @@
 #include "StructureScanComplexItem.h"
 #include "CorridorScanComplexItem.h"
 #include "JsonHelper.h"
-#include "ParameterManager.h"
 #include "QGroundControlQmlGlobal.h"
 #include "SettingsManager.h"
 #include "AppSettings.h"
@@ -31,7 +30,6 @@
 #include "QGCCorePlugin.h"
 #include "TakeoffMissionItem.h"
 #include "PlanViewSettings.h"
-#include "CustomPlugin.h"
 
 #define UPDATE_TIMEOUT 5000 ///< How often we check for bounding box changes
 

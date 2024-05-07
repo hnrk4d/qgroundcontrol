@@ -29,8 +29,6 @@ TransectStyleComplexItemEditor {
     property real   _margin:        ScreenTools.defaultFontPixelWidth / 2
     property var    _missionItem:   missionItem
 
-    property Fact _tool: QGroundControl.settingsManager.toolSettings.tool
-
     Component {
         id: _transectValuesComponent
 
@@ -87,7 +85,7 @@ TransectStyleComplexItemEditor {
                     //each time the index changes we want to update the motor percentage setting of the
                     //_missionItem. Remember: we reinterprete the camera setting for footprint distance as
                     //actuator setting for motors. The user still can overwrite the motor setting if he/she wants.
-                    if(_tool.value === 1) {
+                    if(QGroundControl.settingsManager.toolSettings.tool.value === 1) {
                         _missionItem.cameraCalc.adjustedFootprintFrontal.value = SpreadingController.libraryDosingShaft(currentIndex)
                         _missionItem.cameraCalc.imageDensity.value = SpreadingController.libraryRotaryDisk(currentIndex)
                     }

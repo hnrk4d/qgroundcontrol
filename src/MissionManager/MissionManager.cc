@@ -22,12 +22,14 @@ MissionManager::MissionManager(Vehicle* vehicle)
     , _cachedLastCurrentIndex   (-1)
 {
     connect(_vehicle, &Vehicle::mavlinkMessageReceived, this, &MissionManager::_mavlinkMessageReceived);
+    connect(_vehicle, &Vehicle::coordinateChanged, this, &MissionManager::coordinateChanged);
+    connect(_vehicle, &Vehicle::flightModeChanged, this, &MissionManager::flightModeChanged);
 }
 
 MissionManager::~MissionManager()
 {
-
 }
+
 void MissionManager::writeArduPilotGuidedMissionItem(const QGeoCoordinate& gotoCoord, bool altChangeOnly)
 {
     if (inProgress()) {
@@ -220,16 +222,30 @@ void MissionManager::generateResumeMission(int resumeIndex) {
         prefixCommandCount--;
     }
 
-    //append the last actuator settings to the first valid waypoint if this one does not has a following actuator item
+    //find first waypoint
     auto first_waypoint = std::find_if(resumeMission.begin(), resumeMission.end(),
                  [](const MissionItem *i){return (i->command() == MAV_CMD_NAV_WAYPOINT);});
+    //set the waypoint coordinate to the last know coordinate before the mission was paused
+    if(_resumeCoordinate.isValid() && first_waypoint != resumeMission.end()) {
+        qDebug() << "adjust MAV_CMD_NAV_WAYPOINT coordinate, dist correction =" << (*first_waypoint)->coordinate().distanceTo(_resumeCoordinate);
+        (*first_waypoint)->setParam5(_resumeCoordinate.latitude());
+        (*first_waypoint)->setParam6(_resumeCoordinate.longitude());
+        (*first_waypoint)->setParam7(_resumeCoordinate.altitude());
+    }
+    //append the last actuator settings to the first valid waypoint if this one does not has a following actuator item
     if(lastActuatorItem && first_waypoint != resumeMission.end()) {
         auto right_after_first_waypoint = first_waypoint++;
         if(right_after_first_waypoint != resumeMission.end() &&
             (*right_after_first_waypoint)->command() != MAV_CMD_DO_SET_ACTUATOR) {
             qCDebug(MissionManagerLog) << "append the last actuator setting to the first valid waypoint";
             resumeMission.insert(right_after_first_waypoint, lastActuatorItem);
+            lastActuatorItem = 0;
         }
+    }
+
+    if(lastActuatorItem) {
+        delete lastActuatorItem; //delete item if it wasn't inserted in the list
+        lastActuatorItem = 0;
     }
 
     if(MissionManagerLog().isDebugEnabled()) {
@@ -323,10 +339,23 @@ void MissionManager::_handleHeartbeat(const mavlink_message_t& message)
 {
     Q_UNUSED(message);
 
-    if (_cachedLastCurrentIndex != -1 /*&&  _vehicle->flightMode() == _vehicle->missionFlightMode()*/) {
+    if (_cachedLastCurrentIndex != -1 /*&&  _vehicle->flightMode() == _vehicle->missionFlightMode()*/) { //FLKTR: I commented this because it leads to timing issues and misdetection of resume conditions
         qCDebug(MissionManagerLog) << "_handleHeartbeat updating lastCurrentIndex from cached value:" << _cachedLastCurrentIndex;
         _lastCurrentIndex = _cachedLastCurrentIndex;
         _cachedLastCurrentIndex = -1;
         emit lastCurrentIndexChanged(_lastCurrentIndex);
+    }
+}
+
+void MissionManager::coordinateChanged(QGeoCoordinate coordinate) {
+    if(_vehicle && _vehicle->flightMode().compare(_vehicle->missionFlightMode()) == 0) {
+        _resumeCoordinate = coordinate;
+    }
+}
+
+void MissionManager::flightModeChanged(const QString& flightMode) {
+    if(_vehicle && _vehicle->flightMode().compare(_vehicle->missionFlightMode()) == 0) {
+        //when entering the mission mode we invalidate _resumeCoordinate
+        _resumeCoordinate = QGeoCoordinate();
     }
 }

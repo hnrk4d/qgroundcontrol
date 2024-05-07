@@ -38,6 +38,8 @@ public:
 
 private slots:
     void _mavlinkMessageReceived(const mavlink_message_t& message);
+    void coordinateChanged      (QGeoCoordinate coordinate); //remember the last vehicle coordinate in mission mode
+    void flightModeChanged      (const QString& flightMode);
 
 private:
     void _handleHighLatency(const mavlink_message_t& message);
@@ -47,4 +49,5 @@ private:
     void _handleHeartbeat(const mavlink_message_t& message);
 
     int _cachedLastCurrentIndex;
+    QGeoCoordinate _resumeCoordinate;
 };
