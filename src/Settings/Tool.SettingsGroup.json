@@ -8,7 +8,7 @@
     "shortDesc":        "Attached tool",
     "longDesc":         "After changing the tool select here the right model.",
     "type":             "uint32",
-    "enumStrings":      "None,Lehner - spreading unit,agrotop - spraying unit",
+    "enumStrings":      "None,Spreader [Lehner],Sprayer",
     "enumValues":       "0,1,2",
     "default":          0,
     "qgcRebootRequired": true
